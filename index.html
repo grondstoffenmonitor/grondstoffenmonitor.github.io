@@ -129,6 +129,13 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
     <p class="uitleg">EU-producentenprijzen (Eurostat). Boter: ZuivelNL-notering met het gemiddelde van 2021 (€ 425,08 per 100 kg) als 100. Melk: EDF-ZuivelNL melkprijs met het jaargemiddelde van 2021 (€ 35,91 per 100 kg) als 100.</p>
   </section>
 
+  <section id="brandstof">
+    <div class="sectie-kop"><h2>Brandstof</h2><span class="hint">pompprijs Nederland · t.o.v. vorig jaar</span></div>
+    <div class="raster" id="brandstof-tegels"></div>
+    <div class="klein" id="brandstof-grafieken" style="margin-top:14px"></div>
+    <p class="uitleg">Gemiddelde pompprijs per liter in Nederland (CBS). Transporteurs tanken vaak goedkoper; gebruik vooral de ontwikkeling voor gesprekken over brandstoftoeslagen.</p>
+  </section>
+
   <details>
     <summary>Over de bronnen</summary>
     <ul>
@@ -138,7 +145,7 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
       <li>Suiker (No. 11), cacao en koffie (arabica): IMF-grondstofprijzen via FRED, omgerekend naar euro per kg.</li>
       <li>Boter: Officiële Nederlandse Zuivelnotering (ZuivelNL), verse boter, af fabriek, excl. btw.</li>
       <li>Melk: EDF-ZuivelNL Internationale Melkprijsvergelijking, gemiddelde standaardmelkprijs (4,2% vet, 3,4% eiwit), omgerekend naar liter met 1 liter = 1,03 kg.</li>
-      <li>Diesel: CBS, gemiddelde pompprijs diesel in Nederland per dag (incl. btw en accijns).</li>
+      <li>Diesel en benzine (Euro95): CBS, gemiddelde pompprijs in Nederland per dag (incl. btw en accijns).</li>
       <li>Containervracht: Drewry World Container Index, spotprijs Shanghai → Rotterdam per 40ft container.</li>
       <li>Elke ochtend automatisch opgehaald. Kan een bron niet worden bijgewerkt, dan blijven de vorige cijfers staan en verschijnt bovenaan een melding.</li>
     </ul>
@@ -166,9 +173,9 @@ const ICONEN = {
   dollar: P('<path d="M17 6.5A6.5 6.5 0 1 0 17 17.5"/><path d="M4 10.5h9M4 13.5h9"/>'),
   container: P('<path d="M3 15h18l-2.2 4.5H5.2z"/><rect x="5" y="9" width="5" height="6" rx=".5"/><rect x="10" y="9" width="5" height="6" rx=".5"/>')
 };
-const KLEUR = { eurusd: '--blue', wci: '--indigo', melk: '--teal', boter: '--yellow', diesel: '--teal', ijs: '--pink', c105: '--blue', suiker: '--pink', c1062: '--orange', cacao: '--brown', koffie: '--brown', c1082: '--purple', karton: '--orange', plastic: '--green',
+const KLEUR = { eurusd: '--blue', wci: '--indigo', melk: '--teal', boter: '--yellow', diesel: '--teal', benzine: '--orange', ijs: '--pink', c105: '--blue', suiker: '--pink', c1062: '--orange', cacao: '--brown', koffie: '--brown', c1082: '--purple', karton: '--orange', plastic: '--green',
   dollar: '--blue', container: '--indigo' };
-ICONEN.karton_k = ICONEN.karton; ICONEN.plastic_k = ICONEN.plastic;
+ICONEN.benzine = ICONEN.diesel; ICONEN.karton_k = ICONEN.karton; ICONEN.plastic_k = ICONEN.plastic;
 const kleuren = ['--blue', '--orange', '--green', '--purple', '--pink', '--teal', '--yellow', '--indigo'].map((v) => `var(${v})`);
 
 const loc = d3.formatLocale({decimal: ',', thousands: '.', grouping: [3], currency: ['€', '']});
@@ -184,8 +191,9 @@ function icoon(id) { const s = el('span', 'icoon'); s.style.background = `var(${
 function tegels(data) {
   const box = document.getElementById('groepen');
   [...new Set(data.tegels.map((t) => t.groep))].forEach((g) => {
-    box.appendChild(el('h3', null, g));
-    const raster = el('div', 'raster');
+    const bodem = g === 'Brandstof';
+    if (!bodem) box.appendChild(el('h3', null, g));
+    const raster = bodem ? document.getElementById('brandstof-tegels') : el('div', 'raster');
     data.tegels.filter((t) => t.groep === g).forEach((t) => {
       const a = el('a', 'tegel'); a.href = t.bron; a.target = '_blank'; a.rel = 'noopener'; a.setAttribute('aria-label', `${t.naam}, open de bron`);
       const top = el('div', 'tegel-top'); top.append(icoon(t.id), el('span', 'naam', t.naam), el('span', 'pijl', '↗'));
@@ -202,7 +210,7 @@ function tegels(data) {
       }
       a.append(top, w, voet); raster.appendChild(a);
     });
-    box.appendChild(raster);
+    if (!bodem) box.appendChild(raster);
   });
 }
 
@@ -269,11 +277,12 @@ function lijn(box, series, opt) {
 
 function teken(data) {
   const klein = document.getElementById('klein'); klein.replaceChildren();
+  const bk = document.getElementById('brandstof-grafieken'); bk.replaceChildren();
   data.klein.forEach((k) => {
-    const id = {dollar: 'dollar', boter: 'boter', suiker: 'suiker', cacao: 'cacao', koffie: 'koffie', karton: 'karton', plastic: 'plastic', ijs: 'ijs', diesel: 'diesel', container: 'container'}[k.id] || k.id;
+    const id = {dollar: 'dollar', boter: 'boter', suiker: 'suiker', cacao: 'cacao', koffie: 'koffie', karton: 'karton', plastic: 'plastic', ijs: 'ijs', diesel: 'diesel', benzine: 'benzine', container: 'container'}[k.id] || k.id;
     const kaart = el('div', 'mini');
     const kop = el('div', 'mini-kop'); kop.append(icoon(id), el('span', null, k.titel));
-    const g = el('div', 'grafiek'); kaart.append(kop, g); klein.appendChild(kaart);
+    const g = el('div', 'grafiek'); kaart.append(kop, g); (['diesel', 'benzine'].includes(k.id) ? bk : klein).appendChild(kaart);
     lijn(g, [{naam: k.titel.split(' (')[0].split(',')[0], kleur: `var(${KLEUR[id] || '--blue'})`, reeks: k.reeks}], {h: 180, dag: k.dag, dec: k.id === 'dollar' ? 4 : undefined, label: 'Lijngrafiek: ' + k.titel});
   });
   const series = data.eu.map((l, i) => ({naam: l.naam, kleur: kleuren[i % kleuren.length], reeks: l.reeks}));
