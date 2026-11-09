@@ -2,80 +2,131 @@
 <html lang="nl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
 <title>Grondstoffenmonitor</title>
 <meta name="description" content="Dagelijks bijgewerkte prijzen van grondstoffen voor ijsproductie: zuivel, suiker, cacao, koffie, verpakking, dollarkoers en containervracht.">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
 :root {
-  --bg: #f7f7f5; --panel: #ffffff; --fg: #1f1f1d; --muted: #6b6a66; --line: #e3e2de;
-  --ok: #1a7f37; --bad: #b42318; --grid: #ecebe7; --axis: #c9c8c3;
-  --c1: #2f6fd6; --c2: #e8743b; --c3: #19a979; --c4: #e8a91f; --c5: #d860a0; --c6: #127a1e; --c7: #6c4bd6; --c8: #0f9fb8;
-  --serif: Georgia, "Times New Roman", serif;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --bg: #f2f2f7; --card: #ffffff; --fg: #1d1d1f; --fg2: #6e6e73; --fg3: #aeaeb2; --sep: rgba(60,60,67,.12);
+  --up: #d70015; --up-bg: rgba(255,59,48,.12); --down: #248a3d; --down-bg: rgba(52,199,89,.14); --flat-bg: rgba(120,120,128,.12);
+  --blue: #007aff; --orange: #ff9500; --green: #34c759; --purple: #af52de; --pink: #ff2d55; --teal: #30b0c7; --indigo: #5856d6; --brown: #a2845e; --yellow: #ffcc00;
+  --grid: rgba(60,60,67,.08); --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+  --bar: rgba(242,242,247,.72);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #1b1b1a; --panel: #242423; --fg: #ecebe7; --muted: #a3a29d; --line: #3a3a38; --ok: #4ac26b; --bad: #ff7b72; --grid: #303030; --axis: #4a4a48; }
+  :root {
+    --bg: #000000; --card: #1c1c1e; --fg: #f5f5f7; --fg2: #98989d; --fg3: #636366; --sep: rgba(84,84,88,.5);
+    --up: #ff6961; --up-bg: rgba(255,69,58,.18); --down: #30d158; --down-bg: rgba(48,209,88,.18); --flat-bg: rgba(120,120,128,.24);
+    --grid: rgba(255,255,255,.07); --shadow: none; --bar: rgba(0,0,0,.6);
+  }
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.45; }
-main { max-width: 1400px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 28px; }
-h1 { font-family: var(--serif); font-weight: 400; font-size: 30px; margin: 0; }
-h2 { font-size: 17px; font-weight: 600; margin: 0 0 10px; }
-h3 { font-size: 14px; font-weight: 500; color: var(--muted); margin: 0 0 8px; }
-.muted { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
-.groepen { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
-.tegels { display: flex; flex-direction: column; gap: 10px; }
-a.tegel { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: baseline; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; color: inherit; text-decoration: none; }
-a.tegel:hover { border-color: var(--muted); }
-a.tegel:hover .naam { text-decoration: underline; }
-.naam { font-size: 15px; }
-.val { grid-row: 1; grid-column: 2; font-family: var(--serif); font-size: 20px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.eenheid { grid-column: 1; font-size: 12.5px; color: var(--muted); }
-.chg { grid-column: 2; font-size: 12.5px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.up { color: var(--bad); } .down { color: var(--ok); } .flat { color: var(--muted); }
-.kaart { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
-.klein { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 22px; margin-top: 12px; }
-.grafiek { position: relative; min-height: 190px; }
-.groot { position: relative; min-height: 300px; }
-.legenda { display: flex; flex-wrap: wrap; gap: 4px 16px; list-style: none; padding: 0; margin: 8px 0; font-size: 12.5px; color: var(--muted); }
-.legenda li { display: flex; align-items: center; gap: 6px; }
-.legenda .sw { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
-svg text { fill: var(--muted); font-size: 11.5px; font-family: var(--sans); }
-svg .grid line { stroke: var(--grid); } svg .grid path, svg .as path { display: none; } svg .as line { stroke: var(--axis); }
-.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 4px 14px rgba(0,0,0,.12); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; white-space: nowrap; z-index: 5; font-variant-numeric: tabular-nums; }
-.tip .t { color: var(--muted); margin-bottom: 4px; } .tip .r { display: flex; justify-content: space-between; gap: 14px; }
-.melding { background: #fff4e5; color: #7a4b00; border: 1px solid #f1d39b; border-radius: 8px; padding: 10px 14px; font-size: 13px; }
-@media (prefers-color-scheme: dark) { .melding { background: #3a2e14; color: #f1d39b; border-color: #6b5420; } }
-details summary { cursor: pointer; }
-details ul { font-size: 13px; color: var(--muted); padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.47 var(--font); letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; }
+
+/* Doorschijnende kopbalk, inhoud schuift eronder door */
+.balk { position: sticky; top: 0; z-index: 10; background: var(--bar); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); }
+.balk-in { max-width: 1240px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.balk-in .logo { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(160deg, #5ac8fa, #007aff); display: grid; place-items: center; }
+.balk-in .tijd { margin-left: auto; font-weight: 400; color: var(--fg2); font-size: 13px; }
+
+main { max-width: 1240px; margin: 0 auto; padding: 28px 20px 64px; }
+.kop h1 { font: 700 clamp(2.1rem, 4.5vw, 3rem)/1.05 var(--font-display); letter-spacing: -0.03em; margin: 0; }
+.kop p { color: var(--fg2); font-size: 17px; margin: 8px 0 0; max-width: 62ch; }
+
+.melding { margin-top: 20px; background: rgba(255,149,0,.14); color: #a05a00; border-radius: 14px; padding: 12px 16px; font-size: 14px; }
+@media (prefers-color-scheme: dark) { .melding { color: #ffb340; } }
+
+section { margin-top: 44px; }
+.sectie-kop { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 4px 14px; }
+h2 { font: 700 24px/1.15 var(--font-display); letter-spacing: -0.02em; margin: 0; }
+.sectie-kop .hint { color: var(--fg2); font-size: 13px; }
+h3 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--fg2); margin: 22px 4px 10px; }
+
+.raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+
+/* Tegels */
+a.tegel { display: flex; flex-direction: column; gap: 10px; background: var(--card); border-radius: 18px; padding: 16px 18px 15px; box-shadow: var(--shadow); color: inherit; text-decoration: none; transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s; -webkit-tap-highlight-color: transparent; }
+a.tegel:active { transform: scale(.97); transition-duration: .1s; }
+@media (hover: hover) { a.tegel:hover { box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 14px 32px rgba(0,0,0,.10); } }
+.tegel-top { display: flex; align-items: center; gap: 10px; }
+.icoon { flex: none; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; color: #fff; }
+.icoon svg { width: 19px; height: 19px; }
+.naam { font-size: 15px; font-weight: 600; line-height: 1.25; }
+.pijl { margin-left: auto; color: var(--fg3); font-size: 15px; }
+.waarde { font: 600 30px/1.1 var(--font-display); letter-spacing: -0.025em; font-variant-numeric: tabular-nums; }
+.waarde small { font-size: 17px; font-weight: 500; color: var(--fg2); letter-spacing: -0.01em; }
+.tegel-voet { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.eenheid { font-size: 13px; color: var(--fg2); line-height: 1.3; }
+.pil { flex: none; font-size: 13px; font-weight: 600; padding: 3px 9px; border-radius: 999px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pil.up { color: var(--up); background: var(--up-bg); } .pil.down { color: var(--down); background: var(--down-bg); } .pil.flat { color: var(--fg2); background: var(--flat-bg); }
+
+/* Grafieken */
+.kaart { background: var(--card); border-radius: 22px; padding: 22px; box-shadow: var(--shadow); }
+.klein { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
+.mini { background: var(--card); border-radius: 18px; padding: 16px 16px 8px; box-shadow: var(--shadow); }
+.mini-kop { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.mini-kop .icoon { width: 26px; height: 26px; border-radius: 7px; } .mini-kop .icoon svg { width: 15px; height: 15px; }
+.mini-kop span { font-size: 14px; font-weight: 600; }
+.grafiek { position: relative; min-height: 180px; }
+.groot { position: relative; min-height: 320px; }
+.legenda { display: flex; flex-wrap: wrap; gap: 6px 8px; list-style: none; padding: 0; margin: 0 0 12px; }
+.legenda li { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg2); background: var(--flat-bg); padding: 4px 10px; border-radius: 999px; }
+.legenda .sw { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+svg text { fill: var(--fg2); font: 11px var(--font); }
+svg .grid line { stroke: var(--grid); } svg .grid path, svg .as path, svg .as line { display: none; }
+.tip { position: absolute; pointer-events: none; background: var(--bar); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 6px 24px rgba(0,0,0,.14); border-radius: 12px; padding: 8px 12px; font-size: 13px; white-space: nowrap; z-index: 5; font-variant-numeric: tabular-nums; }
+.tip .t { color: var(--fg2); margin-bottom: 3px; font-size: 12px; } .tip .r { display: flex; justify-content: space-between; gap: 14px; font-weight: 600; }
+.uitleg { color: var(--fg2); font-size: 13px; margin: 10px 4px 0; }
+
+details { margin-top: 44px; background: var(--card); border-radius: 18px; padding: 16px 20px; box-shadow: var(--shadow); }
+details summary { cursor: pointer; font-weight: 600; font-size: 15px; list-style: none; display: flex; justify-content: space-between; }
+details summary::after { content: "›"; color: var(--fg3); transition: transform .25s; }
+details[open] summary::after { transform: rotate(90deg); }
+details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12px 0 2px; display: flex; flex-direction: column; gap: 6px; }
+
+@media (prefers-reduced-motion: reduce) { a.tegel, a.tegel:active, details summary::after { transition: none; transform: none; } }
+@media (prefers-reduced-transparency: reduce) { .balk, .tip { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+@media (max-width: 520px) { main { padding: 20px 16px 48px; } .kaart { padding: 16px; } }
 </style>
 </head>
 <body>
+<div class="balk"><div class="balk-in">
+  <span class="logo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l5-5 4 4 7-8"/></svg></span>
+  Grondstoffenmonitor
+  <span class="tijd" id="bijgewerkt">—</span>
+</div></div>
+
 <main>
-  <header>
-    <h1>Grondstoffenmonitor</h1>
-    <p class="muted">Bijgewerkt: <span id="bijgewerkt">—</span>. Klik op een blokje om de bron te openen. Verandering t.o.v. dezelfde periode vorig jaar (bij vracht: vorige week); rood = duurder, groen = goedkoper.</p>
+  <header class="kop">
+    <h1>Grondstoffen&shy;monitor</h1>
+    <p>Dagelijks bijgewerkte marktprijzen voor ijsproductie. Tik op een tegel om de bron te openen.</p>
   </header>
   <div id="melding" class="melding" hidden></div>
 
   <section id="stand">
-    <h2>Stand per grondstof</h2>
-    <div class="groepen" id="groepen"></div>
-    <p class="muted">Bij de euro is groen een sterkere euro: inkoop in dollars wordt goedkoper.</p>
+    <div class="sectie-kop"><h2>Stand per grondstof</h2><span class="hint">t.o.v. vorig jaar · vracht t.o.v. vorige week</span></div>
+    <div id="groepen"></div>
+    <p class="uitleg">Rood = duurder, groen = goedkoper. Bij de euro is groen een sterkere euro: inkoop in dollars wordt goedkoper.</p>
   </section>
 
-  <section class="kaart" id="verloop">
-    <h2>Prijsverloop sinds 2024</h2>
-    <p class="muted">Maandgemiddelden, elk op eigen schaal. Dollarprijzen omgerekend met de ECB-koers van dezelfde maand. Voor karton en plastic bestaat geen openbare prijs per kg; daar staat de producentenprijsindex.</p>
+  <section id="verloop">
+    <div class="sectie-kop"><h2>Prijsverloop</h2><span class="hint">sinds 2024 · elk op eigen schaal</span></div>
     <div class="klein" id="klein"></div>
+    <p class="uitleg">Maandgemiddelden; dollarprijzen omgerekend met de ECB-koers van dezelfde maand. Voor karton en plastic bestaat geen openbare prijs per kg; daar staat de producentenprijsindex.</p>
   </section>
 
-  <section class="kaart" id="eu">
-    <h2>EU-producentenprijzen sinds 2024</h2>
-    <p class="muted">Index 2021=100. Boter: ZuivelNL-notering met het gemiddelde van 2021 (€ 425,08 per 100 kg) als 100. Melk: EDF-ZuivelNL gemiddelde melkprijs met het jaargemiddelde van 2021 (€ 35,91 per 100 kg) als 100.</p>
-    <ul class="legenda" id="legenda"></ul>
-    <div class="groot" id="eugrafiek"></div>
+  <section id="eu">
+    <div class="sectie-kop"><h2>Alles op één schaal</h2><span class="hint">index 2021 = 100</span></div>
+    <div class="kaart">
+      <ul class="legenda" id="legenda"></ul>
+      <div class="groot" id="eugrafiek"></div>
+    </div>
+    <p class="uitleg">EU-producentenprijzen (Eurostat). Boter: ZuivelNL-notering met het gemiddelde van 2021 (€ 425,08 per 100 kg) als 100. Melk: EDF-ZuivelNL melkprijs met het jaargemiddelde van 2021 (€ 35,91 per 100 kg) als 100.</p>
   </section>
 
   <details>
@@ -87,13 +138,35 @@ details ul { font-size: 13px; color: var(--muted); padding-left: 1.2em; display:
       <li>Boter: Officiële Nederlandse Zuivelnotering (ZuivelNL), verse boter, af fabriek, excl. btw.</li>
       <li>Melk: EDF-ZuivelNL Internationale Melkprijsvergelijking, gemiddelde standaardmelkprijs (4,2% vet, 3,4% eiwit), omgerekend naar liter met 1 liter = 1,03 kg.</li>
       <li>Containervracht: Drewry World Container Index, spotprijs Shanghai → Rotterdam per 40ft container.</li>
-      <li>De cijfers worden elke ochtend automatisch opgehaald. Boter, melk en vracht worden van de websites van ZuivelNL en Drewry gelezen; als die hun pagina wijzigen, verschijnt hierboven een melding.</li>
+      <li>Elke ochtend automatisch opgehaald. Kan een bron niet worden bijgewerkt, dan blijven de vorige cijfers staan en verschijnt bovenaan een melding.</li>
     </ul>
   </details>
 </main>
 
 <script>
-const kleuren = ['--c1', '--c2', '--c3', '--c4', '--c5', '--c6', '--c7', '--c8'].map((v) => `var(${v})`);
+// Eigen eenvoudige lijn-iconen (24×24, stroke = currentColor)
+const P = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICONEN = {
+  eurusd: P('<path d="M17 6.5A6.5 6.5 0 1 0 17 17.5"/><path d="M4 10.5h9M4 13.5h9"/>'),
+  wci: P('<path d="M3 15h18l-2.2 4.5H5.2z"/><rect x="5" y="9" width="5" height="6" rx=".5"/><rect x="10" y="9" width="5" height="6" rx=".5"/><rect x="7.5" y="4" width="5" height="5" rx=".5"/>'),
+  melk: P('<path d="M9 2.5h6M9.5 2.5v3L7 9v11.5a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9l-2.5-3.5v-3"/><path d="M7 13h10"/>'),
+  boter: P('<path d="M3 15l4-6h14l-4 6z"/><path d="M3 15v3h14v-3M17 18l4-6V9"/>'),
+  c105: P('<path d="M4 19V9l5 3V9l5 3V5h6v14z"/><path d="M8 16h1M12 16h1M16 16h1"/>'),
+  suiker: P('<rect x="3" y="11" width="8" height="8" rx="1.5"/><rect x="13" y="11" width="8" height="8" rx="1.5"/><rect x="8" y="3" width="8" height="8" rx="1.5"/>'),
+  c1062: P('<path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"/><path d="M9.5 15a2.5 2.5 0 0 0 2.5 2.5"/>'),
+  cacao: P('<ellipse cx="12" cy="12" rx="6" ry="9" transform="rotate(-30 12 12)"/><path d="M8 17c1-4 3.5-7.5 8-10"/>'),
+  koffie: P('<path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3.5c0 1.5 1 1.5 1 3M12 3.5c0 1.5 1 1.5 1 3"/>'),
+  c1082: P('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M5 9h14M5 15h14M12 3v18"/>'),
+  karton: P('<path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/>'),
+  plastic: P('<path d="M10 2.5h4v3l2 3v12a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-12l2-3z"/><path d="M8 12h8M8 16h8"/>'),
+  dollar: P('<path d="M17 6.5A6.5 6.5 0 1 0 17 17.5"/><path d="M4 10.5h9M4 13.5h9"/>'),
+  container: P('<path d="M3 15h18l-2.2 4.5H5.2z"/><rect x="5" y="9" width="5" height="6" rx=".5"/><rect x="10" y="9" width="5" height="6" rx=".5"/>')
+};
+const KLEUR = { eurusd: '--blue', wci: '--indigo', melk: '--teal', boter: '--yellow', c105: '--blue', suiker: '--pink', c1062: '--orange', cacao: '--brown', koffie: '--brown', c1082: '--purple', karton: '--orange', plastic: '--green',
+  dollar: '--blue', container: '--indigo' };
+ICONEN.karton_k = ICONEN.karton; ICONEN.plastic_k = ICONEN.plastic;
+const kleuren = ['--blue', '--orange', '--green', '--purple', '--pink', '--teal', '--yellow', '--indigo'].map((v) => `var(${v})`);
+
 const loc = d3.formatLocale({decimal: ',', thousands: '.', grouping: [3], currency: ['€', '']});
 const MND = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
 const fmt = (v, dec) => (v == null ? '—' : loc.format(',.' + (dec ?? (v >= 1000 ? 0 : v < 100 ? 2 : 1)) + 'f')(v));
@@ -101,27 +174,31 @@ const fmtTick = (v) => loc.format(',~f')(Math.round(v * 1000) / 1000);
 const pct = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + loc.format(',.1f')(Math.abs(v)) + '%';
 const periode = (p) => !p ? '' : p.length >= 10 ? `${+p.slice(8, 10)} ${MND[+p.slice(5, 7) - 1]} ${p.slice(0, 4)}` : `${MND[+p.slice(5, 7) - 1]} ${p.slice(0, 4)}`;
 const parse = (s) => new Date(Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, s.length >= 10 ? +s.slice(8, 10) : 1));
-
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function icoon(id) { const s = el('span', 'icoon'); s.style.background = `var(${KLEUR[id] || '--blue'})`; s.innerHTML = ICONEN[id] || ''; return s; }
 
 function tegels(data) {
   const box = document.getElementById('groepen');
-  const groepen = [...new Set(data.tegels.map((t) => t.groep))];
-  groepen.forEach((g) => {
-    const kol = el('div', 'tegels'); kol.appendChild(el('h3', null, g));
+  [...new Set(data.tegels.map((t) => t.groep))].forEach((g) => {
+    box.appendChild(el('h3', null, g));
+    const raster = el('div', 'raster');
     data.tegels.filter((t) => t.groep === g).forEach((t) => {
-      const a = el('a', 'tegel'); a.href = t.bron; a.target = '_blank'; a.rel = 'noopener'; a.title = 'Open de bron';
-      a.appendChild(el('span', 'naam', t.naam));
-      a.appendChild(el('span', 'val', t.waarde == null ? '—' : (t.prefix || '') + fmt(t.waarde, t.dec) + (t.suffix || '')));
-      a.appendChild(el('span', 'eenheid', `${t.eenheid} · ${periode(t.periode)}`));
-      const c = el('span', 'chg', t.verandering == null ? '' : `${pct(t.verandering)} ${t.label}`);
+      const a = el('a', 'tegel'); a.href = t.bron; a.target = '_blank'; a.rel = 'noopener'; a.setAttribute('aria-label', `${t.naam}, open de bron`);
+      const top = el('div', 'tegel-top'); top.append(icoon(t.id), el('span', 'naam', t.naam), el('span', 'pijl', '↗'));
+      const w = el('div', 'waarde');
+      if (t.waarde == null) w.textContent = '—';
+      else if (t.id === 'eurusd') { w.append(el('small', null, '1 € = '), document.createTextNode(fmt(t.waarde, t.dec)), el('small', null, ' $')); }
+      else w.textContent = (t.prefix || '') + fmt(t.waarde, t.dec);
+      const voet = el('div', 'tegel-voet');
+      voet.appendChild(el('span', 'eenheid', `${t.eenheid} · ${periode(t.periode)}`));
       if (t.verandering != null) {
         const op = t.verandering > 0.5, neer = t.verandering < -0.5;
-        c.classList.add(op ? (t.hoog_goed ? 'down' : 'up') : neer ? (t.hoog_goed ? 'up' : 'down') : 'flat');
+        const p = el('span', 'pil ' + (op ? (t.hoog_goed ? 'down' : 'up') : neer ? (t.hoog_goed ? 'up' : 'down') : 'flat'), `${pct(t.verandering)} ${t.label}`);
+        voet.appendChild(p);
       }
-      a.appendChild(c); kol.appendChild(a);
+      a.append(top, w, voet); raster.appendChild(a);
     });
-    box.appendChild(kol);
+    box.appendChild(raster);
   });
 }
 
@@ -132,26 +209,35 @@ function lijn(box, series, opt) {
   const w = Math.max(220, box.clientWidth), h = opt.h;
   const x = d3.scaleUtc().domain(d3.extent(all, (d) => parse(d[0])));
   const y = d3.scaleLinear().domain(d3.extent(all, (d) => d[1])).nice();
-  const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', h).attr('viewBox', `0 0 ${w} ${h}`)
-    .attr('role', 'img').attr('aria-label', opt.label);
+  const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', h).attr('viewBox', `0 0 ${w} ${h}`).attr('role', 'img').attr('aria-label', opt.label);
   const nt = h > 220 ? 6 : 4;
   const tmp = svg.append('g'); let left = 0;
   y.ticks(nt).forEach((t) => { left = Math.max(left, tmp.append('text').text(fmtTick(t)).node().getComputedTextLength()); });
   tmp.remove();
-  const m = {t: 8, r: 10, b: 24, l: Math.ceil(left) + 10};
+  const m = {t: 10, r: 8, b: 24, l: Math.ceil(left) + 10};
   x.range([m.l, w - m.r]); y.range([h - m.b, m.t]);
   svg.append('g').attr('class', 'grid').attr('transform', `translate(${m.l},0)`)
-    .call(d3.axisLeft(y).ticks(nt).tickSize(-(w - m.l - m.r)).tickFormat(fmtTick)).call((g) => g.selectAll('.tick text').attr('x', -6));
-  svg.append('g').attr('class', 'as').attr('transform', `translate(0,${h - m.b})`)
-    .call(d3.axisBottom(x).ticks(Math.max(2, Math.min(6, Math.floor((w - m.l) / 80))))
+    .call(d3.axisLeft(y).ticks(nt).tickSize(-(w - m.l - m.r)).tickFormat(fmtTick)).call((g) => g.selectAll('.tick text').attr('x', -8));
+  svg.append('g').attr('class', 'as').attr('transform', `translate(0,${h - m.b + 4})`)
+    .call(d3.axisBottom(x).ticks(Math.max(2, Math.min(6, Math.floor((w - m.l) / 80)))).tickSize(0)
       .tickFormat((d) => opt.dag ? `${d.getUTCDate()} ${MND[d.getUTCMonth()]}` : `${MND[d.getUTCMonth()]} '${String(d.getUTCFullYear()).slice(2)}`));
   const line = d3.line().x((d) => x(parse(d[0]))).y((d) => y(d[1]));
-  series.forEach((s) => svg.append('path').datum(s.reeks).attr('fill', 'none').attr('stroke-width', 2).style('stroke', s.kleur).attr('d', line));
-  if (series.length === 1 && series[0].reeks.length < 6) {
-    svg.selectAll('circle').data(series[0].reeks).join('circle').attr('r', 3).attr('cx', (d) => x(parse(d[0]))).attr('cy', (d) => y(d[1])).style('fill', series[0].kleur);
+  if (series.length === 1) {
+    const id = 'g' + Math.random().toString(36).slice(2);
+    const grad = svg.append('defs').append('linearGradient').attr('id', id).attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 1);
+    grad.append('stop').attr('offset', '0%').style('stop-color', series[0].kleur).style('stop-opacity', .22);
+    grad.append('stop').attr('offset', '100%').style('stop-color', series[0].kleur).style('stop-opacity', 0);
+    const area = d3.area().x((d) => x(parse(d[0]))).y0(h - m.b).y1((d) => y(d[1]));
+    svg.append('path').datum(series[0].reeks).attr('fill', `url(#${id})`).attr('d', area);
+  }
+  series.forEach((s) => svg.append('path').datum(s.reeks).attr('fill', 'none').attr('stroke-width', series.length === 1 ? 2.5 : 2).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round').style('stroke', s.kleur).attr('d', line));
+  if (series.length === 1) {
+    const laatste = series[0].reeks[series[0].reeks.length - 1];
+    svg.append('circle').attr('r', 4).attr('cx', x(parse(laatste[0]))).attr('cy', y(laatste[1])).style('fill', series[0].kleur).style('stroke', 'var(--card)').attr('stroke-width', 2);
   }
   const tip = d3.select(box).append('div').attr('class', 'tip').style('display', 'none');
-  const regel = svg.append('line').attr('y1', m.t).attr('y2', h - m.b).style('stroke', 'var(--axis)').style('display', 'none');
+  const regel = svg.append('line').attr('y1', m.t).attr('y2', h - m.b).style('stroke', 'var(--fg3)').attr('stroke-dasharray', '3 3').style('display', 'none');
+  const punt = svg.append('g');
   const punten = [...new Set(all.map((d) => d[0]))].sort();
   const toon = (ev) => {
     const [px] = d3.pointer(ev, svg.node());
@@ -160,41 +246,44 @@ function lijn(box, series, opt) {
     const best = punten.reduce((a, b) => (Math.abs(parse(b) - t) < Math.abs(parse(a) - t) ? b : a));
     const cx = x(parse(best));
     regel.attr('x1', cx).attr('x2', cx).style('display', null);
+    punt.selectAll('*').remove();
     tip.node().replaceChildren();
     tip.append('div').attr('class', 't').text(periode(best));
     series.forEach((s) => {
       const v = s.reeks.find((d) => d[0] === best); if (!v) return;
+      punt.append('circle').attr('r', 4).attr('cx', cx).attr('cy', y(v[1])).style('fill', s.kleur).style('stroke', 'var(--card)').attr('stroke-width', 2);
       const r = tip.append('div').attr('class', 'r');
       r.append('span').text(s.naam).style('color', s.kleur); r.append('span').text(fmt(v[1], opt.dec));
     });
     tip.style('display', null);
     const bw = box.getBoundingClientRect().width, tw = tip.node().offsetWidth, pc = cx / schaal;
-    tip.style('left', Math.max(0, Math.min(bw - tw, pc + 12 > bw - tw ? pc - tw - 12 : pc + 12)) + 'px').style('top', '8px');
+    tip.style('left', Math.max(0, Math.min(bw - tw, pc + 14 > bw - tw ? pc - tw - 14 : pc + 14)) + 'px').style('top', '6px');
   };
   svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', w - m.l - m.r).attr('height', h - m.t - m.b).attr('fill', 'transparent')
-    .on('pointermove', toon).on('pointerdown', toon).on('pointerleave', () => { tip.style('display', 'none'); regel.style('display', 'none'); });
+    .on('pointermove', toon).on('pointerdown', toon).on('pointerleave', () => { tip.style('display', 'none'); regel.style('display', 'none'); punt.selectAll('*').remove(); });
 }
 
 function teken(data) {
-  const klein = document.getElementById('klein');
-  klein.replaceChildren();
+  const klein = document.getElementById('klein'); klein.replaceChildren();
   data.klein.forEach((k) => {
-    const wrap = el('div'); wrap.appendChild(el('h3', null, k.titel));
-    const g = el('div', 'grafiek'); wrap.appendChild(g); klein.appendChild(wrap);
-    lijn(g, [{naam: k.titel.split(' (')[0], kleur: kleuren[0], reeks: k.reeks}], {h: 190, dag: k.dag, dec: k.id === 'dollar' ? 4 : undefined, label: 'Lijngrafiek: ' + k.titel});
+    const id = {dollar: 'dollar', boter: 'boter', suiker: 'suiker', cacao: 'cacao', koffie: 'koffie', karton: 'karton', plastic: 'plastic', container: 'container'}[k.id] || k.id;
+    const kaart = el('div', 'mini');
+    const kop = el('div', 'mini-kop'); kop.append(icoon(id), el('span', null, k.titel));
+    const g = el('div', 'grafiek'); kaart.append(kop, g); klein.appendChild(kaart);
+    lijn(g, [{naam: k.titel.split(' (')[0].split(',')[0], kleur: `var(${KLEUR[id] || '--blue'})`, reeks: k.reeks}], {h: 180, dag: k.dag, dec: k.id === 'dollar' ? 4 : undefined, label: 'Lijngrafiek: ' + k.titel});
   });
   const series = data.eu.map((l, i) => ({naam: l.naam, kleur: kleuren[i % kleuren.length], reeks: l.reeks}));
   const leg = document.getElementById('legenda'); leg.replaceChildren();
   series.forEach((s) => { const li = el('li'); const sw = el('span', 'sw'); sw.style.background = s.kleur; li.append(sw, s.naam); leg.appendChild(li); });
-  lijn(document.getElementById('eugrafiek'), series, {h: 300, dec: 1, label: 'Lijngrafiek van prijsindexen (2021=100) per grondstof sinds januari 2024'});
+  lijn(document.getElementById('eugrafiek'), series, {h: 320, dec: 1, label: 'Lijngrafiek van prijsindexen (2021=100) per grondstof sinds januari 2024'});
 }
 
 fetch('data/data.json', {cache: 'no-cache'}).then((r) => r.json()).then((data) => {
   const d = new Date(data.bijgewerkt);
-  document.getElementById('bijgewerkt').textContent = d.toLocaleString('nl-NL', {dateStyle: 'long', timeStyle: 'short', timeZone: 'Europe/Amsterdam'});
+  document.getElementById('bijgewerkt').textContent = 'Bijgewerkt ' + d.toLocaleString('nl-NL', {day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Amsterdam'});
   if (data.fouten && data.fouten.length) {
     const m = document.getElementById('melding');
-    m.textContent = 'Let op: niet alle bronnen konden vandaag worden bijgewerkt; daar staan de vorige cijfers. (' + data.fouten.join(' | ') + ')';
+    m.textContent = 'Niet alle bronnen konden vandaag worden bijgewerkt; daar staan de vorige cijfers. (' + data.fouten.join(' | ') + ')';
     m.hidden = false;
   }
   tegels(data); teken(data);
