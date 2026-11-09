@@ -27,10 +27,18 @@ UA = "Mozilla/5.0 (compatible; grondstoffenmonitor/1.0)"
 errors = []
 
 
-def get(url, timeout=60):
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read().decode("utf-8", errors="replace")
+def get(url, timeout=60, pogingen=3):
+    """Haalt een pagina op; probeert het bij een tijdelijke storing nog twee keer."""
+    import time
+    for poging in range(pogingen):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read().decode("utf-8", errors="replace")
+        except Exception:  # noqa: BLE001
+            if poging == pogingen - 1:
+                raise
+            time.sleep(10 * (poging + 1))
 
 
 def safe(name, fn, default):
