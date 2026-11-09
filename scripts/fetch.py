@@ -85,14 +85,18 @@ def fred(sid):
 def cbs_diesel():
     """Dagelijkse gemiddelde pompprijs diesel in Nederland (CBS, euro per liter incl. btw)."""
     url = ("https://opendata.cbs.nl/ODataApi/odata/80416ned/TypedDataSet"
-           "?$filter=Perioden%20ge%20%27" + START.replace("-", "") + "01%27&$select=Perioden,Diesel_2")
+           "?$filter=Perioden%20ge%20%27" + START.replace("-", "") + "01%27&$select=Perioden,Diesel_2,BenzineEuro95_1")
     js = json.loads(get(url))
-    out = []
+    out = {"diesel": [], "benzine": []}
     for r in js.get("value", []):
-        p, v = str(r.get("Perioden", "")), r.get("Diesel_2")
-        if v is not None and len(p) == 8 and p.isdigit():
-            out.append((f"{p[:4]}-{p[4:6]}-{p[6:]}", float(v)))
-    return sorted(out)
+        p = str(r.get("Perioden", ""))
+        if len(p) != 8 or not p.isdigit():
+            continue
+        for sleutel, kolom in (("diesel", "Diesel_2"), ("benzine", "BenzineEuro95_1")):
+            v = r.get(kolom)
+            if v is not None:
+                out[sleutel].append((f"{p[:4]}-{p[4:6]}-{p[6:]}", float(v)))
+    return {k: sorted(v) for k, v in out.items()}
 
 
 def text_of(page):
@@ -208,7 +212,9 @@ def main():
     fx_d = safe("ECB dag", lambda: ecb("D.USD.EUR.SP00.A", vorige_maand.isoformat()), [])
     eu = safe("Eurostat EU", lambda: eurostat("EU27_2020", ["C1052", "C1081", "C1062", "C1082", "C1721", "C2222"]), {})
     nl = safe("Eurostat NL", lambda: eurostat("NL", ["C1052", "C1721", "C2222"]), {})
-    diesel = safe("CBS diesel", cbs_diesel, [])
+    brandstof = safe("CBS brandstof", cbs_diesel, {})
+    diesel = brandstof.get("diesel", [])
+    benzine = brandstof.get("benzine", [])
     wm = {s: safe(f"FRED {s}", lambda s=s: fred(s), []) for s in ("PSUGAISAUSDM", "PCOCOUSDM", "PCOFFOTMUSDM")}
 
     b = safe("ZuivelNL boter", boter_live, None)
@@ -241,21 +247,23 @@ def main():
                           dec=dec, hoog_goed=hoog_goed))
 
     m, v, c = yoy(fx_m)
-    tile("Valuta & transport", "eurusd", "Euro in dollar", "ECB-koers, maandgemiddelde", v, m, c, "op jaar",
+    tile("Valuta & vracht", "eurusd", "Euro in dollar", "ECB-koers, maandgemiddelde", v, m, c, "op jaar",
          "https://data.ecb.europa.eu/data/datasets/EXR/EXR.M.USD.EUR.SP00.A", prefix="1 euro = ", suffix=" dollar", dec=3, hoog_goed=True)
     if sha:
         d, t, p = sha[-1]
-        tile("Valuta & transport", "wci", "Container Shanghai → Rotterdam", "per 40ft container", t, d,
+        tile("Valuta & vracht", "wci", "Container Shanghai → Rotterdam", "per 40ft container", t, d,
              float(p) if p not in ("", None) else None, "op week",
              "https://www.drewry.co.uk/supply-chain-advisors/supply-chain-expertise/world-container-index-assessed-by-drewry", prefix="$ ", dec=0)
 
-    if diesel:
-        d, v = diesel[-1]
+    for sid, reeks, naam in (("diesel", diesel, "Diesel (pompprijs NL)"), ("benzine", benzine, "Benzine Euro95 (pompprijs NL)")):
+        if not reeks:
+            continue
+        d, v = reeks[-1]
         doel = dt.date.fromisoformat(d) - dt.timedelta(days=365)
-        vj = min(diesel, key=lambda r: abs((dt.date.fromisoformat(r[0]) - doel).days))
+        vj = min(reeks, key=lambda r: abs((dt.date.fromisoformat(r[0]) - doel).days))
         ok = abs((dt.date.fromisoformat(vj[0]) - doel).days) <= 7
         excl = f"{v / 1.21:.2f}".replace(".", ",")
-        tile("Valuta & transport", "diesel", "Diesel (pompprijs NL)", f"per liter incl. btw (excl. btw € {excl})", v, d,
+        tile("Brandstof", sid, naam, f"per liter incl. btw (excl. btw € {excl})", v, d,
              pct(v, vj[1]) if ok else None, "op jaar", "https://www.cbs.nl/nl-nl/cijfers/detail/80416ned", prefix="€ ", dec=3)
 
     m, v, c = yoy(melk_m)
@@ -293,6 +301,7 @@ def main():
     klein = [
         dict(id="dollar", titel="Euro in dollar, dagkoers vorige en deze maand", dag=True, reeks=r4(fx_d)),
         dict(id="diesel", titel="Diesel pompprijs NL (€/liter, maandgemiddelde)", reeks=r4(maandgem(diesel))),
+        dict(id="benzine", titel="Benzine Euro95 pompprijs NL (€/liter, maandgemiddelde)", reeks=r4(maandgem(benzine))),
         dict(id="boter", titel="Boter (€/kg)", reeks=r4(boter_m)),
         dict(id="suiker", titel="Suiker (€/kg)", reeks=r4(wm_eur["PSUGAISAUSDM"])),
         dict(id="cacao", titel="Cacao (€/kg)", reeks=r4(wm_eur["PCOCOUSDM"])),
