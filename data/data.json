@@ -1,8 +1,8 @@
 {
- "bijgewerkt": "2026-11-09T19:58+00:00",
+ "bijgewerkt": "2026-11-09T20:03+00:00",
  "tegels": [
   {
-   "groep": "Valuta & transport",
+   "groep": "Valuta & vracht",
    "id": "eurusd",
    "naam": "Euro in dollar",
    "eenheid": "ECB-koers, maandgemiddelde",
@@ -17,7 +17,7 @@
    "hoog_goed": true
   },
   {
-   "groep": "Valuta & transport",
+   "groep": "Valuta & vracht",
    "id": "wci",
    "naam": "Container Shanghai → Rotterdam",
    "eenheid": "per 40ft container",
@@ -32,13 +32,28 @@
    "hoog_goed": false
   },
   {
-   "groep": "Valuta & transport",
+   "groep": "Brandstof",
    "id": "diesel",
    "naam": "Diesel (pompprijs NL)",
    "eenheid": "per liter incl. btw (excl. btw € 2,04)",
    "waarde": 2.468,
    "periode": "2026-11-02",
    "verandering": 42.8,
+   "label": "op jaar",
+   "bron": "https://www.cbs.nl/nl-nl/cijfers/detail/80416ned",
+   "prefix": "€ ",
+   "suffix": "",
+   "dec": 3,
+   "hoog_goed": false
+  },
+  {
+   "groep": "Brandstof",
+   "id": "benzine",
+   "naam": "Benzine Euro95 (pompprijs NL)",
+   "eenheid": "per liter incl. btw (excl. btw € 1,89)",
+   "waarde": 2.284,
+   "periode": "2026-11-02",
+   "verandering": 17.6,
    "label": "op jaar",
    "bron": "https://www.cbs.nl/nl-nl/cijfers/detail/80416ned",
    "prefix": "€ ",
@@ -460,6 +475,152 @@
     [
      "2026-11",
      2.464
+    ]
+   ]
+  },
+  {
+   "id": "benzine",
+   "titel": "Benzine Euro95 pompprijs NL (€/liter, maandgemiddelde)",
+   "reeks": [
+    [
+     "2024-01",
+     1.9127
+    ],
+    [
+     "2024-02",
+     1.9705
+    ],
+    [
+     "2024-03",
+     2.0085
+    ],
+    [
+     "2024-04",
+     2.081
+    ],
+    [
+     "2024-05",
+     2.0315
+    ],
+    [
+     "2024-06",
+     1.9927
+    ],
+    [
+     "2024-07",
+     2.0001
+    ],
+    [
+     "2024-08",
+     1.953
+    ],
+    [
+     "2024-09",
+     1.8796
+    ],
+    [
+     "2024-10",
+     1.9028
+    ],
+    [
+     "2024-11",
+     1.9478
+    ],
+    [
+     "2024-12",
+     1.9479
+    ],
+    [
+     "2025-01",
+     1.9609
+    ],
+    [
+     "2025-02",
+     1.9677
+    ],
+    [
+     "2025-03",
+     1.9056
+    ],
+    [
+     "2025-04",
+     1.8951
+    ],
+    [
+     "2025-05",
+     1.875
+    ],
+    [
+     "2025-06",
+     1.9034
+    ],
+    [
+     "2025-07",
+     1.8964
+    ],
+    [
+     "2025-08",
+     1.9049
+    ],
+    [
+     "2025-09",
+     1.9412
+    ],
+    [
+     "2025-10",
+     1.9383
+    ],
+    [
+     "2025-11",
+     1.9558
+    ],
+    [
+     "2025-12",
+     1.9104
+    ],
+    [
+     "2026-01",
+     2.0135
+    ],
+    [
+     "2026-02",
+     2.0391
+    ],
+    [
+     "2026-03",
+     2.2491
+    ],
+    [
+     "2026-04",
+     2.3232
+    ],
+    [
+     "2026-05",
+     2.3776
+    ],
+    [
+     "2026-06",
+     2.2322
+    ],
+    [
+     "2026-07",
+     2.3154
+    ],
+    [
+     "2026-08",
+     2.3333
+    ],
+    [
+     "2026-09",
+     2.4477
+    ],
+    [
+     "2026-10",
+     2.3869
+    ],
+    [
+     "2026-11",
+     2.2815
     ]
    ]
   },
