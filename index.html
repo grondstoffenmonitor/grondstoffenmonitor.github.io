@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grondstoffenmonitor</title>
+<meta name="description" content="Dagelijks bijgewerkte prijzen van grondstoffen voor ijsproductie: zuivel, suiker, cacao, koffie, verpakking, dollarkoers en containervracht.">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root {
+  --bg: #f7f7f5; --panel: #ffffff; --fg: #1f1f1d; --muted: #6b6a66; --line: #e3e2de;
+  --ok: #1a7f37; --bad: #b42318; --grid: #ecebe7; --axis: #c9c8c3;
+  --c1: #2f6fd6; --c2: #e8743b; --c3: #19a979; --c4: #e8a91f; --c5: #d860a0; --c6: #127a1e; --c7: #6c4bd6; --c8: #0f9fb8;
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #1b1b1a; --panel: #242423; --fg: #ecebe7; --muted: #a3a29d; --line: #3a3a38; --ok: #4ac26b; --bad: #ff7b72; --grid: #303030; --axis: #4a4a48; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.45; }
+main { max-width: 1400px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 28px; }
+h1 { font-family: var(--serif); font-weight: 400; font-size: 30px; margin: 0; }
+h2 { font-size: 17px; font-weight: 600; margin: 0 0 10px; }
+h3 { font-size: 14px; font-weight: 500; color: var(--muted); margin: 0 0 8px; }
+.muted { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
+.groepen { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
+.tegels { display: flex; flex-direction: column; gap: 10px; }
+a.tegel { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: baseline; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; color: inherit; text-decoration: none; }
+a.tegel:hover { border-color: var(--muted); }
+a.tegel:hover .naam { text-decoration: underline; }
+.naam { font-size: 15px; }
+.val { grid-row: 1; grid-column: 2; font-family: var(--serif); font-size: 20px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.eenheid { grid-column: 1; font-size: 12.5px; color: var(--muted); }
+.chg { grid-column: 2; font-size: 12.5px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.up { color: var(--bad); } .down { color: var(--ok); } .flat { color: var(--muted); }
+.kaart { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+.klein { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 22px; margin-top: 12px; }
+.grafiek { position: relative; min-height: 190px; }
+.groot { position: relative; min-height: 300px; }
+.legenda { display: flex; flex-wrap: wrap; gap: 4px 16px; list-style: none; padding: 0; margin: 8px 0; font-size: 12.5px; color: var(--muted); }
+.legenda li { display: flex; align-items: center; gap: 6px; }
+.legenda .sw { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+svg text { fill: var(--muted); font-size: 11.5px; font-family: var(--sans); }
+svg .grid line { stroke: var(--grid); } svg .grid path, svg .as path { display: none; } svg .as line { stroke: var(--axis); }
+.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 4px 14px rgba(0,0,0,.12); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; white-space: nowrap; z-index: 5; font-variant-numeric: tabular-nums; }
+.tip .t { color: var(--muted); margin-bottom: 4px; } .tip .r { display: flex; justify-content: space-between; gap: 14px; }
+.melding { background: #fff4e5; color: #7a4b00; border: 1px solid #f1d39b; border-radius: 8px; padding: 10px 14px; font-size: 13px; }
+@media (prefers-color-scheme: dark) { .melding { background: #3a2e14; color: #f1d39b; border-color: #6b5420; } }
+details summary { cursor: pointer; }
+details ul { font-size: 13px; color: var(--muted); padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Grondstoffenmonitor</h1>
+    <p class="muted">Bijgewerkt: <span id="bijgewerkt">—</span>. Klik op een blokje om de bron te openen. Verandering t.o.v. dezelfde periode vorig jaar (bij vracht: vorige week); rood = duurder, groen = goedkoper.</p>
+  </header>
+  <div id="melding" class="melding" hidden></div>
+
+  <section id="stand">
+    <h2>Stand per grondstof</h2>
+    <div class="groepen" id="groepen"></div>
+    <p class="muted">Bij de euro is groen een sterkere euro: inkoop in dollars wordt goedkoper.</p>
+  </section>
+
+  <section class="kaart" id="verloop">
+    <h2>Prijsverloop sinds 2024</h2>
+    <p class="muted">Maandgemiddelden, elk op eigen schaal. Dollarprijzen omgerekend met de ECB-koers van dezelfde maand. Voor karton en plastic bestaat geen openbare prijs per kg; daar staat de producentenprijsindex.</p>
+    <div class="klein" id="klein"></div>
+  </section>
+
+  <section class="kaart" id="eu">
+    <h2>EU-producentenprijzen sinds 2024</h2>
+    <p class="muted">Index 2021=100. Boter: ZuivelNL-notering met het gemiddelde van 2021 (€ 425,08 per 100 kg) als 100. Melk: EDF-ZuivelNL gemiddelde melkprijs met het jaargemiddelde van 2021 (€ 35,91 per 100 kg) als 100.</p>
+    <ul class="legenda" id="legenda"></ul>
+    <div class="groot" id="eugrafiek"></div>
+  </section>
+
+  <details>
+    <summary>Over de bronnen</summary>
+    <ul>
+      <li>Wisselkoers: ECB-referentiekoers euro/dollar (maandgemiddelde en dagkoers).</li>
+      <li>EU- en NL-indexen: Eurostat, producentenprijzen industrie, binnenlandse markt (sts_inppd_m), niet seizoensgecorrigeerd.</li>
+      <li>Suiker (No. 11), cacao en koffie (arabica): IMF-grondstofprijzen via FRED, omgerekend naar euro per kg.</li>
+      <li>Boter: Officiële Nederlandse Zuivelnotering (ZuivelNL), verse boter, af fabriek, excl. btw.</li>
+      <li>Melk: EDF-ZuivelNL Internationale Melkprijsvergelijking, gemiddelde standaardmelkprijs (4,2% vet, 3,4% eiwit), omgerekend naar liter met 1 liter = 1,03 kg.</li>
+      <li>Containervracht: Drewry World Container Index, spotprijs Shanghai → Rotterdam per 40ft container.</li>
+      <li>De cijfers worden elke ochtend automatisch opgehaald. Boter, melk en vracht worden van de websites van ZuivelNL en Drewry gelezen; als die hun pagina wijzigen, verschijnt hierboven een melding.</li>
+    </ul>
+  </details>
+</main>
+
+<script>
+const kleuren = ['--c1', '--c2', '--c3', '--c4', '--c5', '--c6', '--c7', '--c8'].map((v) => `var(${v})`);
+const loc = d3.formatLocale({decimal: ',', thousands: '.', grouping: [3], currency: ['€', '']});
+const MND = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+const fmt = (v, dec) => (v == null ? '—' : loc.format(',.' + (dec ?? (v >= 1000 ? 0 : v < 100 ? 2 : 1)) + 'f')(v));
+const fmtTick = (v) => loc.format(',~f')(Math.round(v * 1000) / 1000);
+const pct = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + loc.format(',.1f')(Math.abs(v)) + '%';
+const periode = (p) => !p ? '' : p.length >= 10 ? `${+p.slice(8, 10)} ${MND[+p.slice(5, 7) - 1]} ${p.slice(0, 4)}` : `${MND[+p.slice(5, 7) - 1]} ${p.slice(0, 4)}`;
+const parse = (s) => new Date(Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, s.length >= 10 ? +s.slice(8, 10) : 1));
+
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+function tegels(data) {
+  const box = document.getElementById('groepen');
+  const groepen = [...new Set(data.tegels.map((t) => t.groep))];
+  groepen.forEach((g) => {
+    const kol = el('div', 'tegels'); kol.appendChild(el('h3', null, g));
+    data.tegels.filter((t) => t.groep === g).forEach((t) => {
+      const a = el('a', 'tegel'); a.href = t.bron; a.target = '_blank'; a.rel = 'noopener'; a.title = 'Open de bron';
+      a.appendChild(el('span', 'naam', t.naam));
+      a.appendChild(el('span', 'val', t.waarde == null ? '—' : (t.prefix || '') + fmt(t.waarde, t.dec) + (t.suffix || '')));
+      a.appendChild(el('span', 'eenheid', `${t.eenheid} · ${periode(t.periode)}`));
+      const c = el('span', 'chg', t.verandering == null ? '' : `${pct(t.verandering)} ${t.label}`);
+      if (t.verandering != null) {
+        const op = t.verandering > 0.5, neer = t.verandering < -0.5;
+        c.classList.add(op ? (t.hoog_goed ? 'down' : 'up') : neer ? (t.hoog_goed ? 'up' : 'down') : 'flat');
+      }
+      a.appendChild(c); kol.appendChild(a);
+    });
+    box.appendChild(kol);
+  });
+}
+
+function lijn(box, series, opt) {
+  box.replaceChildren();
+  const all = series.flatMap((s) => s.reeks);
+  if (!all.length) { box.textContent = 'Geen gegevens'; return; }
+  const w = Math.max(220, box.clientWidth), h = opt.h;
+  const x = d3.scaleUtc().domain(d3.extent(all, (d) => parse(d[0])));
+  const y = d3.scaleLinear().domain(d3.extent(all, (d) => d[1])).nice();
+  const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', h).attr('viewBox', `0 0 ${w} ${h}`)
+    .attr('role', 'img').attr('aria-label', opt.label);
+  const nt = h > 220 ? 6 : 4;
+  const tmp = svg.append('g'); let left = 0;
+  y.ticks(nt).forEach((t) => { left = Math.max(left, tmp.append('text').text(fmtTick(t)).node().getComputedTextLength()); });
+  tmp.remove();
+  const m = {t: 8, r: 10, b: 24, l: Math.ceil(left) + 10};
+  x.range([m.l, w - m.r]); y.range([h - m.b, m.t]);
+  svg.append('g').attr('class', 'grid').attr('transform', `translate(${m.l},0)`)
+    .call(d3.axisLeft(y).ticks(nt).tickSize(-(w - m.l - m.r)).tickFormat(fmtTick)).call((g) => g.selectAll('.tick text').attr('x', -6));
+  svg.append('g').attr('class', 'as').attr('transform', `translate(0,${h - m.b})`)
+    .call(d3.axisBottom(x).ticks(Math.max(2, Math.min(6, Math.floor((w - m.l) / 80))))
+      .tickFormat((d) => opt.dag ? `${d.getUTCDate()} ${MND[d.getUTCMonth()]}` : `${MND[d.getUTCMonth()]} '${String(d.getUTCFullYear()).slice(2)}`));
+  const line = d3.line().x((d) => x(parse(d[0]))).y((d) => y(d[1]));
+  series.forEach((s) => svg.append('path').datum(s.reeks).attr('fill', 'none').attr('stroke-width', 2).style('stroke', s.kleur).attr('d', line));
+  if (series.length === 1 && series[0].reeks.length < 6) {
+    svg.selectAll('circle').data(series[0].reeks).join('circle').attr('r', 3).attr('cx', (d) => x(parse(d[0]))).attr('cy', (d) => y(d[1])).style('fill', series[0].kleur);
+  }
+  const tip = d3.select(box).append('div').attr('class', 'tip').style('display', 'none');
+  const regel = svg.append('line').attr('y1', m.t).attr('y2', h - m.b).style('stroke', 'var(--axis)').style('display', 'none');
+  const punten = [...new Set(all.map((d) => d[0]))].sort();
+  const toon = (ev) => {
+    const [px] = d3.pointer(ev, svg.node());
+    const schaal = w / svg.node().getBoundingClientRect().width;
+    const t = x.invert(px * schaal);
+    const best = punten.reduce((a, b) => (Math.abs(parse(b) - t) < Math.abs(parse(a) - t) ? b : a));
+    const cx = x(parse(best));
+    regel.attr('x1', cx).attr('x2', cx).style('display', null);
+    tip.node().replaceChildren();
+    tip.append('div').attr('class', 't').text(periode(best));
+    series.forEach((s) => {
+      const v = s.reeks.find((d) => d[0] === best); if (!v) return;
+      const r = tip.append('div').attr('class', 'r');
+      r.append('span').text(s.naam).style('color', s.kleur); r.append('span').text(fmt(v[1], opt.dec));
+    });
+    tip.style('display', null);
+    const bw = box.getBoundingClientRect().width, tw = tip.node().offsetWidth, pc = cx / schaal;
+    tip.style('left', Math.max(0, Math.min(bw - tw, pc + 12 > bw - tw ? pc - tw - 12 : pc + 12)) + 'px').style('top', '8px');
+  };
+  svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', w - m.l - m.r).attr('height', h - m.t - m.b).attr('fill', 'transparent')
+    .on('pointermove', toon).on('pointerdown', toon).on('pointerleave', () => { tip.style('display', 'none'); regel.style('display', 'none'); });
+}
+
+function teken(data) {
+  const klein = document.getElementById('klein');
+  klein.replaceChildren();
+  data.klein.forEach((k) => {
+    const wrap = el('div'); wrap.appendChild(el('h3', null, k.titel));
+    const g = el('div', 'grafiek'); wrap.appendChild(g); klein.appendChild(wrap);
+    lijn(g, [{naam: k.titel.split(' (')[0], kleur: kleuren[0], reeks: k.reeks}], {h: 190, dag: k.dag, dec: k.id === 'dollar' ? 4 : undefined, label: 'Lijngrafiek: ' + k.titel});
+  });
+  const series = data.eu.map((l, i) => ({naam: l.naam, kleur: kleuren[i % kleuren.length], reeks: l.reeks}));
+  const leg = document.getElementById('legenda'); leg.replaceChildren();
+  series.forEach((s) => { const li = el('li'); const sw = el('span', 'sw'); sw.style.background = s.kleur; li.append(sw, s.naam); leg.appendChild(li); });
+  lijn(document.getElementById('eugrafiek'), series, {h: 300, dec: 1, label: 'Lijngrafiek van prijsindexen (2021=100) per grondstof sinds januari 2024'});
+}
+
+fetch('data/data.json', {cache: 'no-cache'}).then((r) => r.json()).then((data) => {
+  const d = new Date(data.bijgewerkt);
+  document.getElementById('bijgewerkt').textContent = d.toLocaleString('nl-NL', {dateStyle: 'long', timeStyle: 'short', timeZone: 'Europe/Amsterdam'});
+  if (data.fouten && data.fouten.length) {
+    const m = document.getElementById('melding');
+    m.textContent = 'Let op: niet alle bronnen konden vandaag worden bijgewerkt; daar staan de vorige cijfers. (' + data.fouten.join(' | ') + ')';
+    m.hidden = false;
+  }
+  tegels(data); teken(data);
+  let tm; window.addEventListener('resize', () => { clearTimeout(tm); tm = setTimeout(() => teken(data), 150); });
+}).catch(() => { document.getElementById('groepen').textContent = 'De gegevens konden niet worden geladen.'; });
+</script>
+</body>
+</html>
