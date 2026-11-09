@@ -138,6 +138,7 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
       <li>Suiker (No. 11), cacao en koffie (arabica): IMF-grondstofprijzen via FRED, omgerekend naar euro per kg.</li>
       <li>Boter: Officiële Nederlandse Zuivelnotering (ZuivelNL), verse boter, af fabriek, excl. btw.</li>
       <li>Melk: EDF-ZuivelNL Internationale Melkprijsvergelijking, gemiddelde standaardmelkprijs (4,2% vet, 3,4% eiwit), omgerekend naar liter met 1 liter = 1,03 kg.</li>
+      <li>Diesel: CBS, gemiddelde pompprijs diesel in Nederland per dag (incl. btw en accijns).</li>
       <li>Containervracht: Drewry World Container Index, spotprijs Shanghai → Rotterdam per 40ft container.</li>
       <li>Elke ochtend automatisch opgehaald. Kan een bron niet worden bijgewerkt, dan blijven de vorige cijfers staan en verschijnt bovenaan een melding.</li>
     </ul>
@@ -153,6 +154,7 @@ const ICONEN = {
   melk: P('<path d="M9 2.5h6M9.5 2.5v3L7 9v11.5a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9l-2.5-3.5v-3"/><path d="M7 13h10"/>'),
   boter: P('<path d="M3 15l4-6h14l-4 6z"/><path d="M3 15v3h14v-3M17 18l4-6V9"/>'),
   ijs: P('<path d="M8 11l4 10 4-10"/><path d="M7 11a5 5 0 1 1 10 0z"/><path d="M9.5 6.5a3 3 0 0 1 5 0"/>'),
+  diesel: P('<path d="M4 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M3 21h13M4 10h11"/><path d="M15 8l3 2v7a1.5 1.5 0 0 0 3 0V9l-3-3"/>'),
   c105: P('<path d="M4 19V9l5 3V9l5 3V5h6v14z"/><path d="M8 16h1M12 16h1M16 16h1"/>'),
   suiker: P('<rect x="3" y="11" width="8" height="8" rx="1.5"/><rect x="13" y="11" width="8" height="8" rx="1.5"/><rect x="8" y="3" width="8" height="8" rx="1.5"/>'),
   c1062: P('<path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"/><path d="M9.5 15a2.5 2.5 0 0 0 2.5 2.5"/>'),
@@ -164,7 +166,7 @@ const ICONEN = {
   dollar: P('<path d="M17 6.5A6.5 6.5 0 1 0 17 17.5"/><path d="M4 10.5h9M4 13.5h9"/>'),
   container: P('<path d="M3 15h18l-2.2 4.5H5.2z"/><rect x="5" y="9" width="5" height="6" rx=".5"/><rect x="10" y="9" width="5" height="6" rx=".5"/>')
 };
-const KLEUR = { eurusd: '--blue', wci: '--indigo', melk: '--teal', boter: '--yellow', ijs: '--pink', c105: '--blue', suiker: '--pink', c1062: '--orange', cacao: '--brown', koffie: '--brown', c1082: '--purple', karton: '--orange', plastic: '--green',
+const KLEUR = { eurusd: '--blue', wci: '--indigo', melk: '--teal', boter: '--yellow', diesel: '--teal', ijs: '--pink', c105: '--blue', suiker: '--pink', c1062: '--orange', cacao: '--brown', koffie: '--brown', c1082: '--purple', karton: '--orange', plastic: '--green',
   dollar: '--blue', container: '--indigo' };
 ICONEN.karton_k = ICONEN.karton; ICONEN.plastic_k = ICONEN.plastic;
 const kleuren = ['--blue', '--orange', '--green', '--purple', '--pink', '--teal', '--yellow', '--indigo'].map((v) => `var(${v})`);
@@ -268,7 +270,7 @@ function lijn(box, series, opt) {
 function teken(data) {
   const klein = document.getElementById('klein'); klein.replaceChildren();
   data.klein.forEach((k) => {
-    const id = {dollar: 'dollar', boter: 'boter', suiker: 'suiker', cacao: 'cacao', koffie: 'koffie', karton: 'karton', plastic: 'plastic', ijs: 'ijs', container: 'container'}[k.id] || k.id;
+    const id = {dollar: 'dollar', boter: 'boter', suiker: 'suiker', cacao: 'cacao', koffie: 'koffie', karton: 'karton', plastic: 'plastic', ijs: 'ijs', diesel: 'diesel', container: 'container'}[k.id] || k.id;
     const kaart = el('div', 'mini');
     const kop = el('div', 'mini-kop'); kop.append(icoon(id), el('span', null, k.titel));
     const g = el('div', 'grafiek'); kaart.append(kop, g); klein.appendChild(kaart);
