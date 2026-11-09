@@ -185,8 +185,8 @@ def main():
 
     fx_m = safe("ECB maand", lambda: ecb("M.USD.EUR.SP00.A", START), [])
     fx_d = safe("ECB dag", lambda: ecb("D.USD.EUR.SP00.A", vorige_maand.isoformat()), [])
-    eu = safe("Eurostat EU", lambda: eurostat("EU27_2020", ["C105", "C1081", "C1062", "C1082", "C1721", "C2222"]), {})
-    nl = safe("Eurostat NL", lambda: eurostat("NL", ["C1721", "C2222"]), {})
+    eu = safe("Eurostat EU", lambda: eurostat("EU27_2020", ["C1052", "C1081", "C1062", "C1082", "C1721", "C2222"]), {})
+    nl = safe("Eurostat NL", lambda: eurostat("NL", ["C1052", "C1721", "C2222"]), {})
     wm = {s: safe(f"FRED {s}", lambda s=s: fred(s), []) for s in ("PSUGAISAUSDM", "PCOCOUSDM", "PCOFFOTMUSDM")}
 
     b = safe("ZuivelNL boter", boter_live, None)
@@ -228,18 +228,18 @@ def main():
              "https://www.drewry.co.uk/supply-chain-advisors/supply-chain-expertise/world-container-index-assessed-by-drewry", prefix="$ ", dec=0)
 
     m, v, c = yoy(melk_m)
-    tile("Zuivel", "melk", "Melk (melkprijs EU-gemiddelde)", "per liter standaardmelk",
+    tile("Zuivel & ijs", "melk", "Melk (melkprijs EU-gemiddelde)", "per liter standaardmelk",
          v / 100 * 1.03 if v else None, m, c, "op jaar", "https://www.zuivelnl.org/marktinformatie/melkprijzen", prefix="€ ", dec=3)
     if boter_pt:
         d, v = boter_pt[-1]
         doel = dt.date.fromisoformat(d) - dt.timedelta(days=364)
         vj = min(boter_pt, key=lambda r: abs((dt.date.fromisoformat(r[0]) - doel).days))
         ok = abs((dt.date.fromisoformat(vj[0]) - doel).days) <= 10
-        tile("Zuivel", "boter", "Boter (ZuivelNL-notering)", "per kg", v, d, pct(v, vj[1]) if ok else None, "op jaar",
+        tile("Zuivel & ijs", "boter", "Boter (ZuivelNL-notering)", "per kg", v, d, pct(v, vj[1]) if ok else None, "op jaar",
              "https://www.zuivelnl.org/marktinformatie/zuivelnoteringen", prefix="€ ", dec=2)
     es = "https://ec.europa.eu/eurostat/databrowser/view/sts_inppd_m/default/table"
-    m, v, c = yoy(eu.get("C105", []))
-    tile("Zuivel", "c105", "Zuivelproducten totaal (EU)", "alle zuivel samen, index 2021=100", v, m, c, "op jaar", es, dec=1)
+    m, v, c = yoy(nl.get("C1052", []))
+    tile("Zuivel & ijs", "ijs", "Consumptie-ijs (NL)", "verkoopprijs ijsproducenten, index 2021=100", v, m, c, "op jaar", es, dec=1)
 
     m, v, c = yoy(wm_eur["PSUGAISAUSDM"])
     tile("Suiker & glucose", "suiker", "Suiker wereldmarkt", "per kg", v, m, c, "op jaar", "https://fred.stlouisfed.org/series/PSUGAISAUSDM", prefix="€ ", dec=2)
@@ -265,13 +265,14 @@ def main():
         dict(id="suiker", titel="Suiker (€/kg)", reeks=r4(wm_eur["PSUGAISAUSDM"])),
         dict(id="cacao", titel="Cacao (€/kg)", reeks=r4(wm_eur["PCOCOUSDM"])),
         dict(id="koffie", titel="Koffie arabica (€/kg)", reeks=r4(wm_eur["PCOFFOTMUSDM"])),
+        dict(id="ijs", titel="Consumptie-ijs Nederland (index, 2021=100)", reeks=r4(nl.get("C1052", []))),
         dict(id="karton", titel="Karton Nederland (index, 2021=100)", reeks=r4(nl.get("C1721", []))),
         dict(id="plastic", titel="Plastic verpakking Nederland (index, 2021=100)", reeks=r4(nl.get("C2222", []))),
         dict(id="container", titel="Container Shanghai → Rotterdam ($ per 40ft)", dag=True, reeks=[[d, t] for d, t, _ in sha]),
     ]
     BOTER_2021, MELK_2021 = 425.08, 35.91  # ZuivelNL-jaargemiddelden 2021 (euro per 100 kg)
     eu_lijnen = [dict(naam=n, reeks=r4(eu.get(c, []))) for c, n in
-                 [("C105", "Zuivel"), ("C1081", "Suiker"), ("C1062", "Zetmeel & glucose"),
+                 [("C1052", "Consumptie-ijs"), ("C1081", "Suiker"), ("C1062", "Zetmeel & glucose"),
                   ("C1082", "Cacao & chocolade"), ("C1721", "Karton"), ("C2222", "Plastic verpakking")]]
     eu_lijnen.append(dict(naam="Boter (NL-notering)", reeks=[[a, round(b * 100 / BOTER_2021 * 100, 1)] for a, b in boter_m]))
     eu_lijnen.append(dict(naam="Melk (EU-melkprijs)", reeks=[[a, round(b / MELK_2021 * 100, 1)] for a, b in melk_m]))
@@ -283,8 +284,6 @@ def main():
             oud = json.loads(oud_pad.read_text())
             ot = {t["id"]: t for t in oud.get("tegels", [])}
             tiles = [ot.get(t["id"], t) if t["waarde"] is None else t for t in tiles]
-            ids = {t["id"] for t in tiles}
-            tiles += [t for t in oud.get("tegels", []) if t["id"] not in ids]
             ok = {k["id"]: k for k in oud.get("klein", [])}
             klein = [ok.get(k["id"], k) if not k["reeks"] else k for k in klein]
             oe = {l["naam"]: l for l in oud.get("eu", [])}
