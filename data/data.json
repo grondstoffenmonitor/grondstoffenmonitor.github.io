@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-09T19:34+00:00",
+ "bijgewerkt": "2026-11-09T19:36+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -2402,7 +2402,5 @@
    ]
   }
  ],
- "fouten": [
-  "ECB dag: HTTP Error 504: Gateway Time-out"
- ]
+ "fouten": []
 }
