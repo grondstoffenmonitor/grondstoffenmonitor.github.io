@@ -119,7 +119,23 @@ def cbs_cpi():
 
 def tradex_video():
     """Nieuwste video (geen Short) van het YouTube-kanaal van Tradex Foods (3-Minute Market Insight)."""
-    xml = get("https://www.youtube.com/feeds/videos.xml?channel_id=UCl4BaI1Unfx0UO5TivOVk0g")
+    import time
+    import urllib.parse
+    kanaal = "UCl4BaI1Unfx0UO5TivOVk0g"
+    xml = ""
+    for poging in range(3):
+        try:
+            xml = get("https://www.youtube.com/feeds/videos.xml?channel_id=" + kanaal)
+            break
+        except Exception:  # noqa: BLE001
+            time.sleep(5)
+    if not xml:
+        # Feed hapert soms; lees dan de videopagina van het kanaal (nieuwste video staat bovenaan).
+        pagina = get("https://www.youtube.com/channel/" + kanaal + "/videos?hl=en")
+        vid = re.search(r'"videoId":"([\w-]{11})"', pagina).group(1)
+        info = json.loads(get("https://www.youtube.com/oembed?format=json&url=" +
+                              urllib.parse.quote("https://www.youtube.com/watch?v=" + vid)))
+        return dict(id=vid, titel=info.get("title", "Tradex Foods"), datum="")
     for entry in xml.split("<entry>")[1:]:
         if "/shorts/" in entry:
             continue
