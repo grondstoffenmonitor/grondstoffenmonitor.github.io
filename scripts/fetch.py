@@ -146,6 +146,24 @@ def tradex_video():
     raise ValueError("geen video gevonden in feed")
 
 
+def comext(product, partner):
+    """EU-importprijs in euro per kg per maand van een CN8-product uit een land (Eurostat Comext, waarde / gewicht)."""
+    url = ("https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/ds-045409?format=JSON&freq=M"
+           f"&reporter=EU27_2020&partner={partner}&product={product}&flow=1"
+           f"&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&sinceTimePeriod={START}&lang=en")
+    js = json.loads(get(url))
+    tijd = js["dimension"]["time"]["category"]["index"]
+    ind = js["dimension"]["indicators"]["category"]["index"]
+    n, val = len(tijd), js.get("value", {})
+    out = []
+    for m, i in sorted(tijd.items(), key=lambda x: x[1]):
+        w = val.get(str(ind["VALUE_IN_EUROS"] * n + i))
+        q = val.get(str(ind["QUANTITY_IN_100KG"] * n + i))
+        if w and q:
+            out.append((m, w / (q * 100)))
+    return out
+
+
 AK = "https://tax.alaska.gov/programs/programs/reports/annual/TriannualSalmon.aspx?ReportDate="
 
 
@@ -318,6 +336,8 @@ def main():
     cpi = safe("CBS inflatie", cbs_cpi, {})
     video = safe("Tradex video", tradex_video, None)
     zalm = safe("Alaska zalm", alaska_pink, [])
+    pollock = safe("Eurostat pollock", lambda: comext("03047500", "CN"), [])
+    pangasius = safe("Eurostat pangasius", lambda: comext("03046200", "VN"), [])
     fx_lang = safe("ECB maand vanaf 2021", lambda: ecb("M.USD.EUR.SP00.A", "2021-01"), [])
     diesel = brandstof.get("diesel", [])
     benzine = brandstof.get("benzine", [])
@@ -416,6 +436,10 @@ def main():
     m, v, c = yoy(zalm_kg)
     tile("Vis", "zalm", "Roze zalm Alaska (diepvries H&G)", "per kg, gemiddelde 4 maanden t/m", v, m, c, "op jaar",
          "https://tax.alaska.gov/programs/programs/reports/index.aspx?60624", prefix="€ ", dec=2)
+    m, v, c = yoy(pollock)
+    tile("Vis", "pollock", "Alaska pollockfilet uit China (diepvries)", "per kg, EU-importprijs", v, m, c, "op jaar", "https://ec.europa.eu/eurostat/databrowser/view/ds-045409/default/table", prefix="€ ", dec=2)
+    m, v, c = yoy(pangasius)
+    tile("Vis", "pangasius", "Pangasiusfilet uit Vietnam (diepvries)", "per kg, EU-importprijs", v, m, c, "op jaar", "https://ec.europa.eu/eurostat/databrowser/view/ds-045409/default/table", prefix="€ ", dec=2)
 
     m, v, c = yoy(nl.get("C1721", []))
     tile("Verpakking", "karton", "Karton & golfkarton (NL)", "producentenprijs, index 2021=100", v, m, c, "op jaar", es, dec=1)
@@ -434,6 +458,8 @@ def main():
         dict(id="cacao", titel="Cacao (€/kg)", reeks=r4(wm_eur["PCOCOUSDM"])),
         dict(id="koffie", titel="Koffie arabica (€/kg)", reeks=r4(wm_eur["PCOFFOTMUSDM"])),
         dict(id="zalm", titel="Roze zalm Alaska, diepvries H&G (€/kg, per 4 maanden)", reeks=r4(zalm_kg)),
+        dict(id="pollock", titel="Alaska pollockfilet uit China, EU-import (€/kg)", reeks=r4(pollock)),
+        dict(id="pangasius", titel="Pangasiusfilet uit Vietnam, EU-import (€/kg)", reeks=r4(pangasius)),
         dict(id="karton", titel="Karton Nederland (index, 2021=100)", reeks=r4(nl.get("C1721", []))),
         dict(id="plastic", titel="Plastic verpakking Nederland (index, 2021=100)", reeks=r4(nl.get("C2222", []))),
         dict(id="container", titel="Container Shanghai → Rotterdam ($ per 40ft)", dag=True, reeks=[[d, t] for d, t, _ in sha]),
