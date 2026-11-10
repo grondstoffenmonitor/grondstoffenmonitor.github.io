@@ -169,11 +169,13 @@ def alaska_pink():
             except Exception as e:  # noqa: BLE001
                 fout = fout or f"{per}: {e}"
                 continue
-            blok = re.search(r"<td[^>]*>\s*Frozen headed &amp; gutted product", pagina)
+            pagina = html.unescape(pagina)
+            blok = re.search(r"<td[^>]*>\s*Frozen\s+headed\s*&\s*gutted", pagina, re.I)
             if not blok:
-                fout = fout or f"{per}: geen tabel ({len(pagina)} tekens: {pagina[:120]!r})"
+                k = pagina.lower().find("frozen headed")
+                fout = fout or f"{per}: geen tabel ({len(pagina)} tekens: {pagina[max(0, k - 80):k + 80]!r})"
                 continue
-            j = pagina.find("Avg Wholesale Price Per Pound", blok.end())
+            j = pagina.lower().find("avg wholesale price per pound", blok.end())
             if j < 0:
                 continue
             cellen = re.findall(r"<td[^>]*>\s*([^<]*?)\s*</td>", pagina[j:pagina.find("</tr>", j)])
