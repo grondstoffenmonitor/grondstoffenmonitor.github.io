@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-10T08:32+00:00",
+ "bijgewerkt": "2026-11-10T08:33+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -3269,7 +3269,5 @@
   "titel": "3MMI - Pacific Cod, Pollock & Halibut: Winter Supply Outlook",
   "datum": "2026-11-09"
  },
- "fouten": [
-  "ECB dag: HTTP Error 504: Gateway Time-out"
- ]
+ "fouten": []
 }
