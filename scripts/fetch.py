@@ -99,6 +99,24 @@ def cbs_diesel():
     return {k: sorted(v) for k, v in out.items()}
 
 
+def cbs_cpi():
+    """Inflatie Nederland (CBS, CPI 2025=100): jaarmutatie in % voor alle bestedingen en voor voeding."""
+    import urllib.parse
+    filt = ("(Bestedingscategorieen eq 'T001112  ' or Bestedingscategorieen eq 'CPI010000') "
+            "and Perioden ge '" + START.replace("-", "MM") + "'")
+    url = ("https://opendata.cbs.nl/ODataApi/odata/86141NED/TypedDataSet?$filter=" + urllib.parse.quote(filt) +
+           "&$select=Bestedingscategorieen,Perioden,JaarmutatieCPI_5")
+    js = json.loads(get(url))
+    out = {"totaal": [], "voeding": []}
+    for r in js.get("value", []):
+        p, v = str(r.get("Perioden", "")), r.get("JaarmutatieCPI_5")
+        if v is None or "MM" not in p:
+            continue
+        sleutel = "totaal" if str(r.get("Bestedingscategorieen", "")).strip() == "T001112" else "voeding"
+        out[sleutel].append((p.replace("MM", "-"), float(v)))
+    return {k: sorted(v) for k, v in out.items()}
+
+
 def text_of(page):
     page = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", page)
     page = re.sub(r"(?s)<[^>]+>", " ", page)
@@ -213,6 +231,7 @@ def main():
     eu = safe("Eurostat EU", lambda: eurostat("EU27_2020", ["C1052", "C1081", "C1062", "C1082", "C1721", "C2222"]), {})
     nl = safe("Eurostat NL", lambda: eurostat("NL", ["C1052", "C1721", "C2222"]), {})
     brandstof = safe("CBS brandstof", cbs_diesel, {})
+    cpi = safe("CBS inflatie", cbs_cpi, {})
     diesel = brandstof.get("diesel", [])
     benzine = brandstof.get("benzine", [])
     wm = {s: safe(f"FRED {s}", lambda s=s: fred(s), []) for s in ("PSUGAISAUSDM", "PCOCOUSDM", "PCOFFOTMUSDM")}
@@ -266,19 +285,25 @@ def main():
         tile("Brandstof", sid, naam, f"per liter incl. btw (excl. btw € {excl})", v, d,
              pct(v, vj[1]) if ok else None, "op jaar", "https://www.cbs.nl/nl-nl/cijfers/detail/80416ned", prefix="€ ", dec=3)
 
+    cbs_cpi_url = "https://www.cbs.nl/nl-nl/cijfers/detail/86141NED"
+    for sid, sleutel, naam, uitleg in (("cpi", "totaal", "Inflatie Nederland (CPI)", "alle bestedingen, prijsstijging t.o.v. een jaar eerder"),
+                                        ("cpi_voeding", "voeding", "Inflatie voedingsmiddelen", "voeding en alcoholvrije dranken, t.o.v. een jaar eerder")):
+        reeks = cpi.get(sleutel, [])
+        if reeks:
+            m, v = reeks[-1]
+            tile("Inflatie", sid, naam, uitleg, v, m, None, "", cbs_cpi_url, suffix="%", dec=1)
+
     m, v, c = yoy(melk_m)
-    tile("Zuivel & ijs", "melk", "Melk (melkprijs EU-gemiddelde)", "per liter standaardmelk",
+    tile("Zuivel", "melk", "Melk (melkprijs EU-gemiddelde)", "per liter standaardmelk",
          v / 100 * 1.03 if v else None, m, c, "op jaar", "https://www.zuivelnl.org/marktinformatie/melkprijzen", prefix="€ ", dec=3)
     if boter_pt:
         d, v = boter_pt[-1]
         doel = dt.date.fromisoformat(d) - dt.timedelta(days=364)
         vj = min(boter_pt, key=lambda r: abs((dt.date.fromisoformat(r[0]) - doel).days))
         ok = abs((dt.date.fromisoformat(vj[0]) - doel).days) <= 10
-        tile("Zuivel & ijs", "boter", "Boter (ZuivelNL-notering)", "per kg", v, d, pct(v, vj[1]) if ok else None, "op jaar",
+        tile("Zuivel", "boter", "Boter (ZuivelNL-notering)", "per kg", v, d, pct(v, vj[1]) if ok else None, "op jaar",
              "https://www.zuivelnl.org/marktinformatie/zuivelnoteringen", prefix="€ ", dec=2)
     es = "https://ec.europa.eu/eurostat/databrowser/view/sts_inppd_m/default/table"
-    m, v, c = yoy(nl.get("C1052", []))
-    tile("Zuivel & ijs", "ijs", "Consumptie-ijs (NL)", "verkoopprijs ijsproducenten, index 2021=100", v, m, c, "op jaar", es, dec=1)
 
     m, v, c = yoy(wm_eur["PSUGAISAUSDM"])
     tile("Suiker & glucose", "suiker", "Suiker wereldmarkt", "per kg", v, m, c, "op jaar", "https://fred.stlouisfed.org/series/PSUGAISAUSDM", prefix="€ ", dec=2)
@@ -302,11 +327,12 @@ def main():
         dict(id="dollar", titel="Euro in dollar, dagkoers vorige en deze maand", dag=True, reeks=r4(fx_d)),
         dict(id="diesel", titel="Diesel pompprijs NL (€/liter, maandgemiddelde)", reeks=r4(maandgem(diesel))),
         dict(id="benzine", titel="Benzine Euro95 pompprijs NL (€/liter, maandgemiddelde)", reeks=r4(maandgem(benzine))),
+        dict(id="cpi", titel="Inflatie Nederland (% t.o.v. vorig jaar)", reeks=r4(cpi.get("totaal", []))),
+        dict(id="cpi_voeding", titel="Inflatie voedingsmiddelen (% t.o.v. vorig jaar)", reeks=r4(cpi.get("voeding", []))),
         dict(id="boter", titel="Boter (€/kg)", reeks=r4(boter_m)),
         dict(id="suiker", titel="Suiker (€/kg)", reeks=r4(wm_eur["PSUGAISAUSDM"])),
         dict(id="cacao", titel="Cacao (€/kg)", reeks=r4(wm_eur["PCOCOUSDM"])),
         dict(id="koffie", titel="Koffie arabica (€/kg)", reeks=r4(wm_eur["PCOFFOTMUSDM"])),
-        dict(id="ijs", titel="Consumptie-ijs Nederland (index, 2021=100)", reeks=r4(nl.get("C1052", []))),
         dict(id="karton", titel="Karton Nederland (index, 2021=100)", reeks=r4(nl.get("C1721", []))),
         dict(id="plastic", titel="Plastic verpakking Nederland (index, 2021=100)", reeks=r4(nl.get("C2222", []))),
         dict(id="container", titel="Container Shanghai → Rotterdam ($ per 40ft)", dag=True, reeks=[[d, t] for d, t, _ in sha]),
