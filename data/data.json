@@ -1,16 +1,16 @@
 {
- "bijgewerkt": "2026-11-10T10:37+00:00",
+ "bijgewerkt": "2026-11-10T10:49+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
    "id": "eurusd",
    "naam": "Euro in dollar",
-   "eenheid": "ECB-koers, maandgemiddelde",
-   "waarde": 1.1201590909090908,
-   "periode": "2026-10",
-   "verandering": -3.7,
+   "eenheid": "ECB-dagkoers",
+   "waarde": 1.1193,
+   "periode": "2026-11-09",
+   "verandering": -3.2,
    "label": "op jaar",
-   "bron": "https://data.ecb.europa.eu/data/datasets/EXR/EXR.M.USD.EUR.SP00.A",
+   "bron": "https://data.ecb.europa.eu/data/datasets/EXR/EXR.D.USD.EUR.SP00.A",
    "prefix": "1 euro = ",
    "suffix": " dollar",
    "dec": 3,
