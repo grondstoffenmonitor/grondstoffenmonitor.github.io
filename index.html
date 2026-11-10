@@ -156,7 +156,7 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
     <div class="sectie-kop"><h2>Vis <span style="font-size:15px;font-weight:500;letter-spacing:0;color:var(--fg2)">· Bron: Eurostat</span></h2><span class="hint">t.o.v. vorig jaar</span></div>
     <div class="raster" id="vis-tegels"></div>
     <div class="klein" id="vis-grafieken" style="margin-top:14px"></div>
-    <p class="uitleg">Wild Pink Salmon (bron: Alaska Department of Revenue): gemiddelde eerste groothandelsprijs in Alaska, per vier maanden. Pollock en pangasius: gemiddelde importwaarde aan de EU-grens (Eurostat), zonder invoerrechten, omgerekend naar dollars met de ECB-koers van die maand; loopt ongeveer twee maanden achter.</p>
+    <p class="uitleg">Wild Pink Salmon (bron: Alaska Department of Revenue): gemiddelde eerste groothandelsprijs in Alaska, per vier maanden. Pollock, Pacific cod en pangasius: gemiddelde importwaarde aan de EU-grens (Eurostat), zonder invoerrechten, omgerekend naar dollars met de ECB-koers van die maand; loopt ongeveer twee maanden achter.</p>
   </section>
 
   <section id="video">
@@ -175,7 +175,7 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
       <li>Boter: Officiële Nederlandse Zuivelnotering (ZuivelNL), verse boter, af fabriek, excl. btw.</li>
       <li>Melk: EDF-ZuivelNL Internationale Melkprijsvergelijking, gemiddelde standaardmelkprijs (4,2% vet, 3,4% eiwit), omgerekend naar liter met 1 liter = 1,03 kg.</li>
       <li>Wild Pink Salmon: Alaska Department of Revenue, Alaska Salmon Price Report (gemiddelde eerste groothandelsprijs diepvries H&amp;G, per vier maanden), omgerekend van dollar per pound naar dollar per kg.</li>
-      <li>Pollock en pangasius: Eurostat Comext, EU-import van diepvriesfilet (CN 03047500 uit Rusland, de VS en China; CN 03046200 uit Vietnam), waarde gedeeld door gewicht.</li>
+      <li>Pollock en pangasius: Eurostat Comext, EU-import van diepvriesfilet (pollock CN 03047500 uit Rusland, de VS en China; Pacific cod CN 03047110 uit China; pangasius CN 03046200 uit Vietnam), waarde gedeeld door gewicht.</li>
       <li>Marktduiding: nieuwste video van het YouTube-kanaal van Tradex Foods (3-Minute Market Insight).</li>
       <li>Inflatie: CBS, consumentenprijsindex (CPI 2025=100), jaarmutatie voor alle bestedingen en voor voedingsmiddelen en alcoholvrije dranken.</li>
       <li>Diesel en benzine (Euro95): CBS, gemiddelde pompprijs in Nederland per dag (incl. btw en accijns).</li>
@@ -206,9 +206,9 @@ const ICONEN = {
   dollar: P('<path d="M17 6.5A6.5 6.5 0 1 0 17 17.5"/><path d="M4 10.5h9M4 13.5h9"/>'),
   container: P('<path d="M3 15h18l-2.2 4.5H5.2z"/><rect x="5" y="9" width="5" height="6" rx=".5"/><rect x="10" y="9" width="5" height="6" rx=".5"/>')
 };
-const KLEUR = { eurusd: '--blue', wci: '--indigo', melk: '--teal', boter: '--yellow', diesel: '--teal', benzine: '--orange', cpi: '--red', cpi_voeding: '--green', ijs: '--pink', c105: '--blue', suiker: '--pink', c1062: '--orange', cacao: '--brown', koffie: '--brown', c1082: '--purple', zalm: '--pink', pollock: '--green', pollock_ru: '--yellow', pollock_us: '--blue', pangasius: '--teal', karton: '--orange', plastic: '--green',
+const KLEUR = { eurusd: '--blue', wci: '--indigo', melk: '--teal', boter: '--yellow', diesel: '--teal', benzine: '--orange', cpi: '--red', cpi_voeding: '--green', ijs: '--pink', c105: '--blue', suiker: '--pink', c1062: '--orange', cacao: '--brown', koffie: '--brown', c1082: '--purple', zalm: '--pink', pollock: '--green', kabeljauw: '--orange', pollock_ru: '--yellow', pollock_us: '--blue', pangasius: '--teal', karton: '--orange', plastic: '--green',
   dollar: '--blue', container: '--indigo' };
-ICONEN.benzine = ICONEN.diesel; ICONEN.cpi = P('<path d="M4 20L20 4"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>'); ICONEN.cpi_voeding = P('<path d="M5 10h14l-1.5 9a2 2 0 0 1-2 1.7h-7a2 2 0 0 1-2-1.7z"/><path d="M9 10l3-6 3 6"/>'); ICONEN.karton_k = ICONEN.karton; ICONEN.zalm = P('<path d="M2.5 12c3-4.5 8-6 12.5-3.5L20 5v14l-5-3.5C10.5 18 5.5 16.5 2.5 12z"/><circle cx="7.5" cy="11" r=".8" fill="currentColor"/>'); ICONEN.pollock = ICONEN.zalm; ICONEN.pollock_ru = ICONEN.zalm; ICONEN.pollock_us = ICONEN.zalm; ICONEN.pangasius = ICONEN.zalm; ICONEN.plastic_k = ICONEN.plastic;
+ICONEN.benzine = ICONEN.diesel; ICONEN.cpi = P('<path d="M4 20L20 4"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>'); ICONEN.cpi_voeding = P('<path d="M5 10h14l-1.5 9a2 2 0 0 1-2 1.7h-7a2 2 0 0 1-2-1.7z"/><path d="M9 10l3-6 3 6"/>'); ICONEN.karton_k = ICONEN.karton; ICONEN.zalm = P('<path d="M2.5 12c3-4.5 8-6 12.5-3.5L20 5v14l-5-3.5C10.5 18 5.5 16.5 2.5 12z"/><circle cx="7.5" cy="11" r=".8" fill="currentColor"/>'); ICONEN.pollock = ICONEN.zalm; ICONEN.kabeljauw = ICONEN.zalm; ICONEN.pollock_ru = ICONEN.zalm; ICONEN.pollock_us = ICONEN.zalm; ICONEN.pangasius = ICONEN.zalm; ICONEN.plastic_k = ICONEN.plastic;
 const kleuren = ['--blue', '--orange', '--green', '--purple', '--pink', '--teal', '--yellow', '--indigo'].map((v) => `var(${v})`);
 
 const loc = d3.formatLocale({decimal: ',', thousands: '.', grouping: [3], currency: ['€', '']});
@@ -321,7 +321,7 @@ function teken(data) {
     const id = {dollar: 'dollar', boter: 'boter', suiker: 'suiker', cacao: 'cacao', koffie: 'koffie', karton: 'karton', plastic: 'plastic', ijs: 'ijs', diesel: 'diesel', benzine: 'benzine', cpi: 'cpi', cpi_voeding: 'cpi_voeding', container: 'container'}[k.id] || k.id;
     const kaart = el('div', 'mini');
     const kop = el('div', 'mini-kop'); kop.append(icoon(id), el('span', null, k.titel));
-    const g = el('div', 'grafiek'); kaart.append(kop, g); (['diesel', 'benzine'].includes(k.id) ? bk : ['cpi', 'cpi_voeding'].includes(k.id) ? ik : ['zalm', 'pollock', 'pangasius'].includes(k.id) ? vk : klein).appendChild(kaart);
+    const g = el('div', 'grafiek'); kaart.append(kop, g); (['diesel', 'benzine'].includes(k.id) ? bk : ['cpi', 'cpi_voeding'].includes(k.id) ? ik : ['zalm', 'pollock', 'kabeljauw', 'pangasius'].includes(k.id) ? vk : klein).appendChild(kaart);
     if (k.lijnen) { const lg = el('div', 'mini-leg'); k.lijnen.forEach((l) => { const s = el('span'); const sw = el('span', 'sw'); sw.style.background = `var(${l.kleur})`; s.append(sw, l.naam); lg.appendChild(s); }); kaart.insertBefore(lg, g); }
     const reeksen = k.lijnen ? k.lijnen.map((l) => ({naam: l.naam, kleur: `var(${l.kleur})`, reeks: vanaf(l.reeks)}))
       : [{naam: k.titel.split(' (')[0].split(',')[0], kleur: `var(${KLEUR[id] || '--blue'})`, reeks: k.dag ? k.reeks : vanaf(k.reeks)}];
