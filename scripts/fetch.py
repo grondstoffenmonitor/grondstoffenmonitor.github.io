@@ -426,7 +426,7 @@ def main():
     m, v, c = yoy(eu.get("C1082", []))
     tile("Cacao, koffie & chocolade", "c1082", "Cacao, chocolade & snoep (EU)", "producentenprijs, index 2021=100", v, m, c, "op jaar", es, dec=1)
 
-    kl = dict(fx_lang)
+    kl = dict(fx_lang) or dict(fx_m)  # valt de lange ECB-reeks uit, gebruik dan de korte
     # Vis in dollars: EU-importprijzen (euro per kg) omrekenen met de ECB-koers van dezelfde maand.
     pollock, pollock_ru, pollock_us = ([(m, v * kl[m] * 1000) for m, v in r if m in kl]  # dollar per ton
                                        for r in (pollock, pollock_ru, pollock_us))
