@@ -146,6 +146,40 @@ def tradex_video():
     raise ValueError("geen video gevonden in feed")
 
 
+AK = "https://tax.alaska.gov/programs/programs/reports/annual/TriannualSalmon.aspx?ReportDate="
+
+
+def alaska_pink():
+    """Roze zalm (pink) Alaska, diepvries H&G: gemiddelde eerste groothandelsprijs ($/lb) per periode van vier maanden.
+    Bron: Alaska Department of Revenue. Al opgehaalde periodes staan in data/zalm.csv; alleen nieuwe worden opgevraagd."""
+    velden = ["periode", "pink_usd_lb"]
+    if not (DATA / "zalm.csv").exists():
+        write_csv("zalm.csv", [], velden)
+    bekend = {r["periode"] for r in read_csv("zalm.csv")}
+    vandaag = dt.date.today()
+    nieuw = []
+    for jaar in range(2021, vandaag.year + 1):
+        for maand, dag in ((4, 30), (8, 31), (12, 31)):
+            per = f"{jaar}-{maand:02d}"
+            if per in bekend or dt.date(jaar, maand, dag) >= vandaag:
+                continue
+            try:
+                pagina = get(AK + f"{maand}/{dag}/{jaar}")
+            except Exception:  # noqa: BLE001
+                continue
+            blok = re.search(r"<td[^>]*>\s*Frozen headed &amp; gutted product", pagina)
+            if not blok:
+                continue
+            j = pagina.find("Avg Wholesale Price Per Pound", blok.end())
+            if j < 0:
+                continue
+            cellen = re.findall(r"<td[^>]*>\s*([^<]*?)\s*</td>", pagina[j:pagina.find("</tr>", j)])
+            # kolommen: Chinook, Sockeye, Coho, Pink, Chum
+            if len(cellen) >= 4 and cellen[3].startswith("$") and float(cellen[3].lstrip("$").replace(",", "")) > 0:
+                nieuw.append({"periode": per, "pink_usd_lb": cellen[3].lstrip("$").replace(",", "")})
+    return upsert("zalm.csv", ["periode"], velden, nieuw)
+
+
 def text_of(page):
     page = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", page)
     page = re.sub(r"(?s)<[^>]+>", " ", page)
@@ -262,6 +296,8 @@ def main():
     brandstof = safe("CBS brandstof", cbs_diesel, {})
     cpi = safe("CBS inflatie", cbs_cpi, {})
     video = safe("Tradex video", tradex_video, None)
+    zalm = safe("Alaska zalm", alaska_pink, [])
+    fx_lang = safe("ECB maand vanaf 2021", lambda: ecb("M.USD.EUR.SP00.A", "2021-01"), [])
     diesel = brandstof.get("diesel", [])
     benzine = brandstof.get("benzine", [])
     wm = {s: safe(f"FRED {s}", lambda s=s: fred(s), []) for s in ("PSUGAISAUSDM", "PCOCOUSDM", "PCOFFOTMUSDM")}
@@ -347,6 +383,17 @@ def main():
     m, v, c = yoy(eu.get("C1082", []))
     tile("Cacao, koffie & chocolade", "c1082", "Cacao, chocolade & snoep (EU)", "producentenprijs, index 2021=100", v, m, c, "op jaar", es, dec=1)
 
+    kl = dict(fx_lang)
+    zalm_kg = []
+    for r in zalm:
+        j, mnd = int(r["periode"][:4]), int(r["periode"][5:])
+        k = [kl[f"{j}-{x:02d}"] for x in range(mnd - 3, mnd + 1) if f"{j}-{x:02d}" in kl]
+        if k:  # dollar per pound -> euro per kg, met de gemiddelde koers over dezelfde vier maanden
+            zalm_kg.append((r["periode"], float(r["pink_usd_lb"]) * 2.20462 / (sum(k) / len(k))))
+    m, v, c = yoy(zalm_kg)
+    tile("Vis", "zalm", "Roze zalm Alaska (diepvries H&G)", "per kg, gemiddelde 4 maanden t/m", v, m, c, "op jaar",
+         "https://tax.alaska.gov/programs/programs/reports/index.aspx?60624", prefix="€ ", dec=2)
+
     m, v, c = yoy(nl.get("C1721", []))
     tile("Verpakking", "karton", "Karton & golfkarton (NL)", "producentenprijs, index 2021=100", v, m, c, "op jaar", es, dec=1)
     m, v, c = yoy(nl.get("C2222", []))
@@ -363,6 +410,7 @@ def main():
         dict(id="suiker", titel="Suiker (€/kg)", reeks=r4(wm_eur["PSUGAISAUSDM"])),
         dict(id="cacao", titel="Cacao (€/kg)", reeks=r4(wm_eur["PCOCOUSDM"])),
         dict(id="koffie", titel="Koffie arabica (€/kg)", reeks=r4(wm_eur["PCOFFOTMUSDM"])),
+        dict(id="zalm", titel="Roze zalm Alaska, diepvries H&G (€/kg, per 4 maanden)", reeks=r4(zalm_kg)),
         dict(id="karton", titel="Karton Nederland (index, 2021=100)", reeks=r4(nl.get("C1721", []))),
         dict(id="plastic", titel="Plastic verpakking Nederland (index, 2021=100)", reeks=r4(nl.get("C2222", []))),
         dict(id="container", titel="Container Shanghai → Rotterdam ($ per 40ft)", dag=True, reeks=[[d, t] for d, t, _ in sha]),
