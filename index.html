@@ -139,7 +139,7 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
   </section>
 
   <section id="brandstof">
-    <div class="sectie-kop"><h2>Brandstof</h2><span class="hint">pompprijs Nederland · t.o.v. vorig jaar</span></div>
+    <div class="sectie-kop"><h2>Energie &amp; brandstof</h2><span class="hint">Nederland · t.o.v. vorig jaar</span></div>
     <div class="raster" id="brandstof-tegels"></div>
     <div class="klein" id="brandstof-grafieken" style="margin-top:14px"></div>
     <p class="uitleg">Gemiddelde pompprijs per liter in Nederland (CBS).</p>
@@ -179,6 +179,7 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
       <li>Marktduiding: nieuwste video van het YouTube-kanaal van Tradex Foods (3-Minute Market Insight).</li>
       <li>Inflatie: CBS, consumentenprijsindex (CPI 2025=100), jaarmutatie voor alle bestedingen en voor voedingsmiddelen en alcoholvrije dranken.</li>
       <li>Diesel en benzine (Euro95): CBS, gemiddelde pompprijs in Nederland per dag (incl. btw en accijns).</li>
+      <li>Stroom en gas: CBS, gemiddelde energietarieven voor consumenten (tabel 85592NED), variabel leveringstarief plus energiebelasting, inclusief btw. Maandcijfers; vaste netbeheerkosten en vastrecht zitten er niet in.</li>
       <li>Containervracht: Drewry World Container Index, spotprijs Shanghai → Rotterdam per 40ft container.</li>
       <li>Elke ochtend automatisch opgehaald. Kan een bron niet worden bijgewerkt, dan blijven de vorige cijfers staan en verschijnt bovenaan een melding.</li>
     </ul>
@@ -208,7 +209,7 @@ const ICONEN = {
 };
 const KLEUR = { eurusd: '--blue', wci: '--indigo', melk: '--teal', boter: '--yellow', diesel: '--teal', benzine: '--orange', cpi: '--red', cpi_voeding: '--green', ijs: '--pink', c105: '--blue', suiker: '--pink', c1062: '--orange', cacao: '--brown', koffie: '--brown', c1082: '--purple', zalm: '--pink', pollock: '--green', kabeljauw: '--orange', tilapia: '--purple', pollock_ru: '--yellow', pollock_us: '--blue', pangasius: '--teal', karton: '--orange', plastic: '--green',
   dollar: '--blue', container: '--indigo' };
-ICONEN.benzine = ICONEN.diesel; ICONEN.cpi = P('<path d="M4 20L20 4"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>'); ICONEN.cpi_voeding = P('<path d="M5 10h14l-1.5 9a2 2 0 0 1-2 1.7h-7a2 2 0 0 1-2-1.7z"/><path d="M9 10l3-6 3 6"/>'); ICONEN.karton_k = ICONEN.karton; ICONEN.zalm = P('<path d="M2.5 12c3-4.5 8-6 12.5-3.5L20 5v14l-5-3.5C10.5 18 5.5 16.5 2.5 12z"/><circle cx="7.5" cy="11" r=".8" fill="currentColor"/>'); ICONEN.pollock = ICONEN.zalm; ICONEN.kabeljauw = ICONEN.zalm; ICONEN.tilapia = ICONEN.zalm; ICONEN.pollock_ru = ICONEN.zalm; ICONEN.pollock_us = ICONEN.zalm; ICONEN.pangasius = ICONEN.zalm; ICONEN.plastic_k = ICONEN.plastic;
+ICONEN.benzine = ICONEN.diesel; ICONEN.stroom = P('<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>'); ICONEN.gas = P('<path d="M12 22c4 0 7-3 7-7 0-4-3-6-4-10-2 2-3 4-3 6-1-1-2-2-2-4-2 2-5 5-5 8 0 4 3 7 7 7z"/>'); KLEUR.stroom = '--yellow'; KLEUR.gas = '--orange'; ICONEN.cpi = P('<path d="M4 20L20 4"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>'); ICONEN.cpi_voeding = P('<path d="M5 10h14l-1.5 9a2 2 0 0 1-2 1.7h-7a2 2 0 0 1-2-1.7z"/><path d="M9 10l3-6 3 6"/>'); ICONEN.karton_k = ICONEN.karton; ICONEN.zalm = P('<path d="M2.5 12c3-4.5 8-6 12.5-3.5L20 5v14l-5-3.5C10.5 18 5.5 16.5 2.5 12z"/><circle cx="7.5" cy="11" r=".8" fill="currentColor"/>'); ICONEN.pollock = ICONEN.zalm; ICONEN.kabeljauw = ICONEN.zalm; ICONEN.tilapia = ICONEN.zalm; ICONEN.pollock_ru = ICONEN.zalm; ICONEN.pollock_us = ICONEN.zalm; ICONEN.pangasius = ICONEN.zalm; ICONEN.plastic_k = ICONEN.plastic;
 const kleuren = ['--blue', '--orange', '--green', '--purple', '--pink', '--teal', '--yellow', '--indigo'].map((v) => `var(${v})`);
 
 const loc = d3.formatLocale({decimal: ',', thousands: '.', grouping: [3], currency: ['€', '']});
@@ -342,7 +343,7 @@ function teken(data) {
     if (k.lijnen) { const lg = el('div', 'mini-leg'); k.lijnen.forEach((l) => { const s = el('span'); const sw = el('span', 'sw'); sw.style.background = `var(${l.kleur})`; s.append(sw, l.naam); lg.appendChild(s); }); kaart.insertBefore(lg, g); }
     const reeksen = k.lijnen ? k.lijnen.map((l) => ({naam: l.naam, kleur: `var(${l.kleur})`, reeks: k.mnd ? l.reeks : vanaf(l.reeks)}))
       : [{naam: k.titel.split(' (')[0].split(',')[0], kleur: `var(${KLEUR[id] || '--blue'})`, reeks: k.dag ? k.reeks : vanaf(k.reeks)}];
-    lijn(g, reeksen, {h: 180, dag: k.dag, mnd: k.mnd, dec: k.id === 'dollar' ? 4 : k.id === 'pollock' ? 2 : k.id.startsWith('cpi') ? 1 : undefined, label: 'Lijngrafiek: ' + k.titel});
+    lijn(g, reeksen, {h: 180, dag: k.dag, mnd: k.mnd, dec: k.id === 'dollar' ? 4 : k.id === 'pollock' ? 2 : ['stroom', 'gas'].includes(k.id) ? 3 : k.id.startsWith('cpi') ? 1 : undefined, label: 'Lijngrafiek: ' + k.titel});
   });
   const series = data.eu.filter((l) => l.naam !== 'Consumptie-ijs').map((l, i) => ({naam: l.naam, kleur: kleuren[i % kleuren.length], reeks: vanaf(l.reeks)}));
   const leg = document.getElementById('legenda'); leg.replaceChildren();
