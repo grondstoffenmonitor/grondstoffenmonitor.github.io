@@ -236,7 +236,7 @@ function tegels(data) {
       else if (t.id === 'eurusd') { w.append(el('small', null, '1 € = '), document.createTextNode(fmt(t.waarde, t.dec)), el('small', null, ' $')); }
       else w.textContent = (t.prefix || '') + fmt(t.waarde, t.dec) + (t.suffix || '');
       const usd = data.tegels.find((x) => x.id === 'eurusd');
-      if (t.id === 'container' && t.waarde != null && usd && usd.waarde) w.append(el('small', null, ` · € ${fmt(t.waarde / usd.waarde, 0)}`));
+      if (t.id === 'wci' && t.waarde != null && usd && usd.waarde) w.append(el('small', null, ` · € ${fmt(t.waarde / usd.waarde, 0)}`));
       const voet = el('div', 'tegel-voet');
       voet.appendChild(el('span', 'eenheid', `${t.eenheid} · ${periode(t.periode)}`));
       if (t.verandering != null) {
