@@ -3,6 +3,7 @@ name: Cijfers bijwerken
 on:
   schedule:
     - cron: "17 5 * * *"   # elke dag rond 06:17 / 07:17 Nederlandse tijd
+    - cron: "17 15 * * *"  # na de nieuwe ECB-dagkoers (rond 16:00 Nederlandse tijd)
   workflow_dispatch: {}      # handmatig starten via het tabblad Actions
 
 permissions:
