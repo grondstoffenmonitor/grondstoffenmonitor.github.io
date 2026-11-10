@@ -436,7 +436,7 @@ def main():
 
     kl = dict(fx_lang) or dict(fx_m)  # valt de lange ECB-reeks uit, gebruik dan de korte
     # Vis in dollars: EU-importprijzen (euro per kg) omrekenen met de ECB-koers van dezelfde maand.
-    pollock, pollock_ru, pollock_us = ([(m, v * kl[m] * 1000) for m, v in r if m in kl]  # dollar per ton
+    pollock, pollock_ru, pollock_us = ([(m, v * kl[m]) for m, v in r if m in kl]  # dollar per kg
                                        for r in (pollock, pollock_ru, pollock_us))
     kabeljauw = [(m, v * kl[m]) for m, v in kabeljauw if m in kl]  # dollar per kg
     pangasius = [(m, v * kl[m]) for m, v in pangasius if m in kl]
@@ -452,7 +452,7 @@ def main():
     for sid, reeks, naam in (("pollock_ru", pollock_ru, "Pollockfilet Rusland"), ("pollock_us", pollock_us, "Pollockfilet VS"),
                              ("pollock", pollock, "Pollockfilet China (Russische grondstof)")):
         m, v, c = yoy(reeks)
-        tile("Vis", sid, naam, "per ton, EU-importprijs", v, m, c, "op jaar", "https://ec.europa.eu/eurostat/databrowser/view/ds-045409/default/table", prefix="$ ", dec=0)
+        tile("Vis", sid, naam, "per kg, EU-importprijs", v, m, c, "op jaar", "https://ec.europa.eu/eurostat/databrowser/view/ds-045409/default/table", prefix="$ ", dec=2)
     m, v, c = yoy(kabeljauw)
     tile("Vis", "kabeljauw", "Pacific cod filet China (diepvries)", "per kg, EU-importprijs", v, m, c, "op jaar", "https://ec.europa.eu/eurostat/databrowser/view/ds-045409/default/table", prefix="$ ", dec=2)
     m, v, c = yoy(pangasius)
@@ -475,7 +475,7 @@ def main():
         dict(id="cacao", titel="Cacao (€/kg)", reeks=r4(wm_eur["PCOCOUSDM"])),
         dict(id="koffie", titel="Koffie arabica (€/kg)", reeks=r4(wm_eur["PCOFFOTMUSDM"])),
         dict(id="zalm", titel="Wild Pink Salmon Alaska, diepvries H&G ($/kg, per 4 maanden)", reeks=r4(zalm_kg)),
-        dict(id="pollock", titel="Pollockfilet naar de EU per herkomst ($/ton)", reeks=r4(pollock),
+        dict(id="pollock", titel="Pollockfilet naar de EU per herkomst ($/kg)", reeks=r4(pollock),
              lijnen=[dict(naam="Rusland", kleur="--yellow", reeks=r4(pollock_ru)), dict(naam="VS", kleur="--blue", reeks=r4(pollock_us)),
                      dict(naam="China (Russ. grondstof)", kleur="--green", reeks=r4(pollock))]),
         dict(id="kabeljauw", titel="Pacific cod filet uit China, EU-import ($/kg)", reeks=r4(kabeljauw)),
