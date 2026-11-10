@@ -438,7 +438,7 @@ def main():
         j, mnd = int(r["periode"][:4]), int(r["periode"][5:])
         zalm_kg.append((r["periode"], float(r["pink_usd_lb"]) * 2.20462))  # dollar per pound -> dollar per kg
     m, v, c = yoy(zalm_kg)
-    tile("Vis", "zalm", "Pink salmon Alaska (diepvries H&G)", "per kg, gemiddelde 4 maanden t/m", v, m, c, "op jaar",
+    tile("Vis", "zalm", "Wild Pink Salmon Alaska (diepvries H&G)", "per kg, gemiddelde 4 maanden t/m", v, m, c, "op jaar",
          "https://tax.alaska.gov/programs/programs/reports/index.aspx?60624", prefix="$ ", dec=2)
     for sid, reeks, naam in (("pollock_ru", pollock_ru, "Pollockfilet Rusland"), ("pollock_us", pollock_us, "Pollockfilet VS"),
                              ("pollock", pollock, "Pollockfilet China (Russische grondstof)")):
@@ -463,7 +463,7 @@ def main():
         dict(id="suiker", titel="Suiker (€/kg)", reeks=r4(wm_eur["PSUGAISAUSDM"])),
         dict(id="cacao", titel="Cacao (€/kg)", reeks=r4(wm_eur["PCOCOUSDM"])),
         dict(id="koffie", titel="Koffie arabica (€/kg)", reeks=r4(wm_eur["PCOFFOTMUSDM"])),
-        dict(id="zalm", titel="Pink salmon Alaska, diepvries H&G ($/kg, per 4 maanden)", reeks=r4(zalm_kg)),
+        dict(id="zalm", titel="Wild Pink Salmon Alaska, diepvries H&G ($/kg, per 4 maanden)", reeks=r4(zalm_kg)),
         dict(id="pollock", titel="Pollockfilet naar de EU per herkomst ($/ton)", reeks=r4(pollock),
              lijnen=[dict(naam="Rusland", kleur="--yellow", reeks=r4(pollock_ru)), dict(naam="VS", kleur="--blue", reeks=r4(pollock_us)),
                      dict(naam="China (Russ. grondstof)", kleur="--green", reeks=r4(pollock))]),
