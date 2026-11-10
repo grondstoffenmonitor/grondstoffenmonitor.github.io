@@ -158,6 +158,7 @@ def alaska_pink():
     bekend = {r["periode"] for r in read_csv("zalm.csv")}
     vandaag = dt.date.today()
     nieuw = []
+    fout = ""
     for jaar in range(2021, vandaag.year + 1):
         for maand, dag in ((4, 30), (8, 31), (12, 31)):
             per = f"{jaar}-{maand:02d}"
@@ -165,10 +166,12 @@ def alaska_pink():
                 continue
             try:
                 pagina = get(AK + f"{maand}/{dag}/{jaar}")
-            except Exception:  # noqa: BLE001
+            except Exception as e:  # noqa: BLE001
+                fout = fout or f"{per}: {e}"
                 continue
             blok = re.search(r"<td[^>]*>\s*Frozen headed &amp; gutted product", pagina)
             if not blok:
+                fout = fout or f"{per}: geen tabel ({len(pagina)} tekens: {pagina[:120]!r})"
                 continue
             j = pagina.find("Avg Wholesale Price Per Pound", blok.end())
             if j < 0:
@@ -177,7 +180,10 @@ def alaska_pink():
             # kolommen: Chinook, Sockeye, Coho, Pink, Chum
             if len(cellen) >= 4 and cellen[3].startswith("$") and float(cellen[3].lstrip("$").replace(",", "")) > 0:
                 nieuw.append({"periode": per, "pink_usd_lb": cellen[3].lstrip("$").replace(",", "")})
-    return upsert("zalm.csv", ["periode"], velden, nieuw)
+    rows = upsert("zalm.csv", ["periode"], velden, nieuw)
+    if not rows and fout:
+        raise RuntimeError(fout)
+    return rows
 
 
 def text_of(page):
