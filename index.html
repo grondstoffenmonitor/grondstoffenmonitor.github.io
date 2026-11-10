@@ -142,7 +142,7 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
     <div class="sectie-kop"><h2>Energie &amp; brandstof</h2><span class="hint">Nederland · t.o.v. vorig jaar</span></div>
     <div class="raster" id="brandstof-tegels"></div>
     <div class="klein" id="brandstof-grafieken" style="margin-top:14px"></div>
-    <p class="uitleg">Gemiddelde pompprijs per liter in Nederland (CBS).</p>
+    <p class="uitleg">Brandstof: gemiddelde pompprijs per liter (CBS). Stroom en gas: gemiddeld variabel consumententarief incl. energiebelasting en btw, zonder vastrecht en netbeheer (CBS), laatste 12 maanden.</p>
   </section>
 
   <section id="inflatie">
@@ -334,7 +334,7 @@ function teken(data) {
     const id = {dollar: 'dollar', boter: 'boter', suiker: 'suiker', cacao: 'cacao', koffie: 'koffie', karton: 'karton', plastic: 'plastic', ijs: 'ijs', diesel: 'diesel', benzine: 'benzine', cpi: 'cpi', cpi_voeding: 'cpi_voeding', container: 'container'}[k.id] || k.id;
     const kaart = el('div', 'mini');
     const kop = el('div', 'mini-kop'); kop.append(icoon(id), el('span', null, k.titel));
-    const g = el('div', 'grafiek'); kaart.append(kop, g); (['diesel', 'benzine'].includes(k.id) ? bk : ['cpi', 'cpi_voeding'].includes(k.id) ? ik : ['zalm', 'pollock', 'kabeljauw', 'tilapia', 'pangasius'].includes(k.id) ? vk : klein).appendChild(kaart);
+    const g = el('div', 'grafiek'); kaart.append(kop, g); (['diesel', 'benzine', 'stroom', 'gas'].includes(k.id) ? bk : ['cpi', 'cpi_voeding'].includes(k.id) ? ik : ['zalm', 'pollock', 'kabeljauw', 'tilapia', 'pangasius'].includes(k.id) ? vk : klein).appendChild(kaart);
     if (k.id === 'pangasius' && !k.lijnen) { // jaarvergelijking: per jaar een lijn over jan-dec
       const jk = {2026: '--blue', 2025: '--green', 2024: '--yellow'};
       const jaren = [...new Set(k.reeks.map((d) => d[0].slice(0, 4)))].sort().reverse();
