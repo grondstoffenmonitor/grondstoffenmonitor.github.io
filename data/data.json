@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-10T11:10+00:00",
+ "bijgewerkt": "2026-11-10T12:26+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -94,13 +94,13 @@
   {
    "groep": "Zuivel",
    "id": "melk",
-   "naam": "Melk (melkprijs EU-gemiddelde)",
-   "eenheid": "per liter standaardmelk",
-   "waarde": 0.429304,
-   "periode": "2026-09",
-   "verandering": -14.3,
+   "naam": "Melk (FrieslandCampina garantieprijs)",
+   "eenheid": "per liter",
+   "waarde": 0.4841,
+   "periode": "2026-11",
+   "verandering": 2.2,
    "label": "op jaar",
-   "bron": "https://www.zuivelnl.org/marktinformatie/melkprijzen",
+   "bron": "https://www.frieslandcampina.com/nl/eigendom-van-boeren/garantieprijs/",
    "prefix": "€ ",
    "suffix": "",
    "dec": 3,
