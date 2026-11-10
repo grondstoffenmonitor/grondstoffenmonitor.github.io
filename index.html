@@ -122,7 +122,7 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
   </section>
 
   <section id="verloop">
-    <div class="sectie-kop"><h2>Prijsverloop</h2><span class="hint">sinds 2024 · elk op eigen schaal</span></div>
+    <div class="sectie-kop"><h2>Prijsverloop</h2><span class="hint">sinds 2025 · elk op eigen schaal</span></div>
     <div class="klein" id="klein"></div>
     <p class="uitleg">Maandgemiddelden; dollarprijzen omgerekend met de ECB-koers van dezelfde maand. Voor karton en plastic bestaat geen openbare prijs per kg; daar staat de producentenprijsindex.</p>
   </section>
@@ -307,6 +307,9 @@ function lijn(box, series, opt) {
     .on('pointermove', toon).on('pointerdown', toon).on('pointerleave', () => { tip.style('display', 'none'); regel.style('display', 'none'); punt.selectAll('*').remove(); });
 }
 
+const VANAF = '2025-01'; // grafieken tonen de ontwikkeling vanaf deze maand
+const vanaf = (reeks) => reeks.filter((d) => d[0] >= VANAF);
+
 function teken(data) {
   const klein = document.getElementById('klein'); klein.replaceChildren();
   const bk = document.getElementById('brandstof-grafieken'); bk.replaceChildren();
@@ -317,12 +320,12 @@ function teken(data) {
     const kaart = el('div', 'mini');
     const kop = el('div', 'mini-kop'); kop.append(icoon(id), el('span', null, k.titel));
     const g = el('div', 'grafiek'); kaart.append(kop, g); (['diesel', 'benzine'].includes(k.id) ? bk : ['cpi', 'cpi_voeding'].includes(k.id) ? ik : ['zalm', 'pollock', 'pangasius'].includes(k.id) ? vk : klein).appendChild(kaart);
-    lijn(g, [{naam: k.titel.split(' (')[0].split(',')[0], kleur: `var(${KLEUR[id] || '--blue'})`, reeks: k.reeks}], {h: 180, dag: k.dag, dec: k.id === 'dollar' ? 4 : k.id.startsWith('cpi') ? 1 : undefined, label: 'Lijngrafiek: ' + k.titel});
+    lijn(g, [{naam: k.titel.split(' (')[0].split(',')[0], kleur: `var(${KLEUR[id] || '--blue'})`, reeks: k.dag ? k.reeks : vanaf(k.reeks)}], {h: 180, dag: k.dag, dec: k.id === 'dollar' ? 4 : k.id.startsWith('cpi') ? 1 : undefined, label: 'Lijngrafiek: ' + k.titel});
   });
-  const series = data.eu.map((l, i) => ({naam: l.naam, kleur: kleuren[i % kleuren.length], reeks: l.reeks}));
+  const series = data.eu.map((l, i) => ({naam: l.naam, kleur: kleuren[i % kleuren.length], reeks: vanaf(l.reeks)}));
   const leg = document.getElementById('legenda'); leg.replaceChildren();
   series.forEach((s) => { const li = el('li'); const sw = el('span', 'sw'); sw.style.background = s.kleur; li.append(sw, s.naam); leg.appendChild(li); });
-  lijn(document.getElementById('eugrafiek'), series, {h: 320, dec: 1, label: 'Lijngrafiek van prijsindexen (2021=100) per grondstof sinds januari 2024'});
+  lijn(document.getElementById('eugrafiek'), series, {h: 320, dec: 1, label: 'Lijngrafiek van prijsindexen (2021=100) per grondstof sinds januari 2025'});
 }
 
 function video(data) {
