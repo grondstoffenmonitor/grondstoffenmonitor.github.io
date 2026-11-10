@@ -244,6 +244,31 @@ MAANDEN = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augu
            "september", "oktober", "november", "december"]
 
 
+def fc_garantie():
+    """Garantieprijs FrieslandCampina (euro per 100 kg melk) per maand; wordt eind van de vorige maand bekendgemaakt."""
+    velden = ["maand", "garantieprijs_eur_100kg"]
+    if not (DATA / "fc.csv").exists():
+        write_csv("fc.csv", [], velden)
+    bekend = {r["maand"] for r in read_csv("fc.csv")}
+    vandaag = dt.date.today()
+    eind = (vandaag.year, vandaag.month + 1) if vandaag.month < 12 else (vandaag.year + 1, 1)
+    j, m = 2025, 1
+    nieuw = []
+    while (j, m) <= eind:
+        sleutel = f"{j}-{m:02d}"
+        if sleutel not in bekend:
+            try:
+                t = text_of(get("https://www.frieslandcampina.com/nl/nieuws/integrale-melkprijs-frieslandcampina-"
+                                + MAANDEN[m - 1].lower() + "-" + str(j) + "/", pogingen=1))
+                g = re.search(r"Garantieprijs[^.]*?(?:naar|tot|op|van)\s*([\d.,]+)\s*euro per 100 kilogram", t, re.I)
+                if g:
+                    nieuw.append({"maand": sleutel, "garantieprijs_eur_100kg": num(g.group(1))})
+            except Exception:  # noqa: BLE001
+                pass
+        j, m = (j, m + 1) if m < 12 else (j + 1, 1)
+    return upsert("fc.csv", ["maand"], velden, nieuw)
+
+
 def melk_live():
     t = text_of(get("https://www.zuivelnl.org/marktinformatie/melkprijzen"))
     m = re.search(r"melkprijs is in (" + "|".join(MAANDEN) + r") (\d{4})", t, re.I)
@@ -337,6 +362,7 @@ def main():
     cpi = safe("CBS inflatie", cbs_cpi, {})
     video = safe("Tradex video", tradex_video, None)
     zalm = safe("Alaska zalm", alaska_pink, [])
+    fc = safe("FrieslandCampina garantieprijs", fc_garantie, [])
     pollock = safe("Eurostat pollock", lambda: comext("03047500", "CN"), [])
     pangasius = safe("Eurostat pangasius", lambda: comext("03046200", "VN"), [])
     pollock_ru = safe("Eurostat pollock RU", lambda: comext("03047500", "RU"), [])
@@ -411,8 +437,14 @@ def main():
             m, v = reeks[-1]
             tile("Inflatie", sid, naam, uitleg, v, m, None, "", cbs_cpi_url, suffix="%", dec=1)
 
-    m, v, c = yoy(melk_m)
-    tile("Zuivel", "melk", "Melk (melkprijs EU-gemiddelde)", "per liter standaardmelk",
+    fc_m = [(r["maand"], float(r["garantieprijs_eur_100kg"])) for r in fc]
+    if fc_m:  # actueler: garantieprijs FrieslandCampina, vooraf per maand bekendgemaakt
+        m, v, c = yoy(fc_m)
+        tile("Zuivel", "melk", "Melk (FrieslandCampina garantieprijs)", "per liter", v / 100 * 1.03 if v else None, m, c, "op jaar",
+             "https://www.frieslandcampina.com/nl/eigendom-van-boeren/garantieprijs/", prefix="€ ", dec=3)
+    else:
+      m, v, c = yoy(melk_m)
+      tile("Zuivel", "melk", "Melk (melkprijs EU-gemiddelde)", "per liter standaardmelk",
          v / 100 * 1.03 if v else None, m, c, "op jaar", "https://www.zuivelnl.org/marktinformatie/melkprijzen", prefix="€ ", dec=3)
     if boter_pt:
         d, v = boter_pt[-1]
