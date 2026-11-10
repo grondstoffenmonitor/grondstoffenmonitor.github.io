@@ -330,6 +330,7 @@ def main():
 
     fx_m = safe("ECB maand", lambda: ecb("M.USD.EUR.SP00.A", START), [])
     fx_d = safe("ECB dag", lambda: ecb("D.USD.EUR.SP00.A", vorige_maand.isoformat()), [])
+    fx_jaar = safe("ECB dag (jaar)", lambda: ecb("D.USD.EUR.SP00.A", (vandaag - dt.timedelta(days=380)).isoformat()), [])
     eu = safe("Eurostat EU", lambda: eurostat("EU27_2020", ["C1052", "C1081", "C1062", "C1082", "C1721", "C2222"]), {})
     nl = safe("Eurostat NL", lambda: eurostat("NL", ["C1052", "C1721", "C2222"]), {})
     brandstof = safe("CBS brandstof", cbs_diesel, {})
@@ -375,9 +376,15 @@ def main():
                           verandering=verandering, label=label, bron=bron, prefix=prefix, suffix=suffix,
                           dec=dec, hoog_goed=hoog_goed))
 
-    m, v, c = yoy(fx_m)
-    tile("Valuta & vracht", "eurusd", "Euro in dollar", "ECB-koers, maandgemiddelde", v, m, c, "op jaar",
-         "https://data.ecb.europa.eu/data/datasets/EXR/EXR.M.USD.EUR.SP00.A", prefix="1 euro = ", suffix=" dollar", dec=3, hoog_goed=True)
+    dag = fx_jaar or fx_d
+    if dag:  # actuele koers: ECB-dagkoers van de laatste werkdag, vergeleken met dezelfde dag een jaar eerder
+        m, v = dag[-1]
+        vj = [x for d, x in fx_jaar if d <= f"{int(m[:4]) - 1}{m[4:]}"]
+        c = pct(v, vj[-1]) if vj else None
+    else:
+        m, v, c = yoy(fx_m)
+    tile("Valuta & vracht", "eurusd", "Euro in dollar", "ECB-dagkoers" if dag else "ECB-koers, maandgemiddelde", v, m, c, "op jaar",
+         "https://data.ecb.europa.eu/data/datasets/EXR/EXR.D.USD.EUR.SP00.A", prefix="1 euro = ", suffix=" dollar", dec=3, hoog_goed=True)
     if sha:
         d, t, p = sha[-1]
         tile("Valuta & vracht", "wci", "Container Shanghai → Rotterdam", "per 40ft container", t, d,
