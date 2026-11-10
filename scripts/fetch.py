@@ -117,6 +117,19 @@ def cbs_cpi():
     return {k: sorted(v) for k, v in out.items()}
 
 
+def tradex_video():
+    """Nieuwste video (geen Short) van het YouTube-kanaal van Tradex Foods (3-Minute Market Insight)."""
+    xml = get("https://www.youtube.com/feeds/videos.xml?channel_id=UCl4BaI1Unfx0UO5TivOVk0g")
+    for entry in xml.split("<entry>")[1:]:
+        if "/shorts/" in entry:
+            continue
+        vid = re.search(r"<yt:videoId>([^<]+)</yt:videoId>", entry).group(1)
+        titel = html.unescape(re.search(r"<title>([^<]*)</title>", entry).group(1))
+        datum = re.search(r"<published>([^<]+)</published>", entry).group(1)[:10]
+        return dict(id=vid, titel=titel, datum=datum)
+    raise ValueError("geen video gevonden in feed")
+
+
 def text_of(page):
     page = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", page)
     page = re.sub(r"(?s)<[^>]+>", " ", page)
@@ -232,6 +245,7 @@ def main():
     nl = safe("Eurostat NL", lambda: eurostat("NL", ["C1052", "C1721", "C2222"]), {})
     brandstof = safe("CBS brandstof", cbs_diesel, {})
     cpi = safe("CBS inflatie", cbs_cpi, {})
+    video = safe("Tradex video", tradex_video, None)
     diesel = brandstof.get("diesel", [])
     benzine = brandstof.get("benzine", [])
     wm = {s: safe(f"FRED {s}", lambda s=s: fred(s), []) for s in ("PSUGAISAUSDM", "PCOCOUSDM", "PCOFFOTMUSDM")}
@@ -355,11 +369,13 @@ def main():
             klein = [ok.get(k["id"], k) if not k["reeks"] else k for k in klein]
             oe = {l["naam"]: l for l in oud.get("eu", [])}
             eu_lijnen = [oe.get(l["naam"], l) if not l["reeks"] else l for l in eu_lijnen]
+            if not video:
+                video = oud.get("video")
         except Exception as e:  # noqa: BLE001
             errors.append(f"vorige data.json: {e}")
 
     out = dict(bijgewerkt=dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
-               tegels=tiles, klein=klein, eu=eu_lijnen, fouten=errors)
+               tegels=tiles, klein=klein, eu=eu_lijnen, video=video, fouten=errors)
     (DATA / "data.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
     print(f"Klaar: {len(tiles)} tegels, {len(errors)} fouten")
     for e in errors:
