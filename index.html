@@ -317,7 +317,7 @@ function teken(data) {
   const bk = document.getElementById('brandstof-grafieken'); bk.replaceChildren();
   const ik = document.getElementById('inflatie-grafieken'); ik.replaceChildren();
   const vk = document.getElementById('vis-grafieken'); vk.replaceChildren();
-  data.klein.forEach((k) => {
+  data.klein.filter((k) => !['pollock', 'kabeljauw', 'tilapia', 'pangasius'].includes(k.id)).forEach((k) => { // Eurostat-visgrafieken weggelaten (tegels blijven)
     const id = {dollar: 'dollar', boter: 'boter', suiker: 'suiker', cacao: 'cacao', koffie: 'koffie', karton: 'karton', plastic: 'plastic', ijs: 'ijs', diesel: 'diesel', benzine: 'benzine', cpi: 'cpi', cpi_voeding: 'cpi_voeding', container: 'container'}[k.id] || k.id;
     const kaart = el('div', 'mini');
     const kop = el('div', 'mini-kop'); kop.append(icoon(id), el('span', null, k.titel));
