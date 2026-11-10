@@ -117,6 +117,28 @@ def cbs_cpi():
     return {k: sorted(v) for k, v in out.items()}
 
 
+def cbs_energie():
+    """Gemiddelde energietarieven consumenten NL (CBS 85592NED, incl. btw): variabel leveringstarief + energiebelasting."""
+    import urllib.parse
+    start = (dt.date.today().replace(day=1) - dt.timedelta(days=800)).strftime("%YMM%m")
+    filt = "Btw eq 'A048944' and Perioden ge '" + start + "'"
+    url = ("https://opendata.cbs.nl/ODataApi/odata/85592NED/TypedDataSet?$filter=" + urllib.parse.quote(filt) +
+           "&$select=Perioden,VariabelLeveringstariefContractprijs_3,Energiebelasting_6,"
+           "VariabelLeveringstariefContractprijs_9,Energiebelasting_14")
+    js = json.loads(get(url))
+    out = {"gas": [], "stroom": []}
+    for r in js.get("value", []):
+        p = str(r.get("Perioden", ""))
+        if "MM" not in p:
+            continue
+        for sleutel, a, b in (("gas", "VariabelLeveringstariefContractprijs_3", "Energiebelasting_6"),
+                              ("stroom", "VariabelLeveringstariefContractprijs_9", "Energiebelasting_14")):
+            va, vb = r.get(a), r.get(b)
+            if va is not None and vb is not None:
+                out[sleutel].append((p.replace("MM", "-"), round(float(va) + float(vb), 4)))
+    return {k: sorted(v) for k, v in out.items()}
+
+
 def tradex_video():
     """Nieuwste video (geen Short) van het YouTube-kanaal van Tradex Foods (3-Minute Market Insight)."""
     import time
@@ -360,6 +382,7 @@ def main():
     nl = safe("Eurostat NL", lambda: eurostat("NL", ["C1052", "C1721", "C2222"]), {})
     brandstof = safe("CBS brandstof", cbs_diesel, {})
     cpi = safe("CBS inflatie", cbs_cpi, {})
+    energie = safe("CBS energietarieven", cbs_energie, {})
     video = safe("Tradex video", tradex_video, None)
     zalm = safe("Alaska zalm", alaska_pink, [])
     fc = safe("FrieslandCampina garantieprijs", fc_garantie, [])
@@ -428,6 +451,13 @@ def main():
         excl = f"{v / 1.21:.2f}".replace(".", ",")
         tile("Brandstof", sid, naam, f"per liter incl. btw (excl. btw € {excl})", v, d,
              pct(v, vj[1]) if ok else None, "op jaar", "https://www.cbs.nl/nl-nl/cijfers/detail/80416ned", prefix="€ ", dec=3)
+
+    for sid, naam, eenh in (("stroom", "Stroom (gem. variabel tarief NL)", "per kWh"), ("gas", "Gas (gem. variabel tarief NL)", "per m³")):
+        if not energie.get(sid):
+            continue
+        m, v, c = yoy(energie[sid])
+        tile("Brandstof", sid, naam, f"{eenh} incl. belasting & btw", v, m, c, "op jaar",
+             "https://opendata.cbs.nl/#/CBS/nl/dataset/85592NED/table", prefix="€ ", dec=3)
 
     cbs_cpi_url = "https://www.cbs.nl/nl-nl/cijfers/detail/86141NED"
     for sid, sleutel, naam, uitleg in (("cpi", "totaal", "Inflatie Nederland (CPI)", "alle bestedingen, prijsstijging t.o.v. een jaar eerder"),
@@ -504,6 +534,8 @@ def main():
         dict(id="dollar", titel="Euro in dollar, dagkoers vorige en deze maand", dag=True, reeks=r4(fx_d)),
         dict(id="diesel", titel="Diesel pompprijs NL (€/liter, maandgemiddelde)", reeks=r4(maandgem(diesel))),
         dict(id="benzine", titel="Benzine Euro95 pompprijs NL (€/liter, maandgemiddelde)", reeks=r4(maandgem(benzine))),
+        dict(id="stroom", titel="Stroom consument NL (€/kWh, laatste 12 maanden)", dag=True, reeks=r4(energie.get("stroom", [])[-12:])),
+        dict(id="gas", titel="Gas consument NL (€/m³, laatste 12 maanden)", dag=True, reeks=r4(energie.get("gas", [])[-12:])),
         dict(id="cpi", titel="Inflatie Nederland (% t.o.v. vorig jaar)", reeks=r4(cpi.get("totaal", []))),
         dict(id="cpi_voeding", titel="Inflatie voedingsmiddelen (% t.o.v. vorig jaar)", reeks=r4(cpi.get("voeding", []))),
         dict(id="boter", titel="Boter (€/kg)", reeks=r4(boter_m)),
