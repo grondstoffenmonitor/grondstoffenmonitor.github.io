@@ -325,7 +325,7 @@ function teken(data) {
     if (k.lijnen) { const lg = el('div', 'mini-leg'); k.lijnen.forEach((l) => { const s = el('span'); const sw = el('span', 'sw'); sw.style.background = `var(${l.kleur})`; s.append(sw, l.naam); lg.appendChild(s); }); kaart.insertBefore(lg, g); }
     const reeksen = k.lijnen ? k.lijnen.map((l) => ({naam: l.naam, kleur: `var(${l.kleur})`, reeks: vanaf(l.reeks)}))
       : [{naam: k.titel.split(' (')[0].split(',')[0], kleur: `var(${KLEUR[id] || '--blue'})`, reeks: k.dag ? k.reeks : vanaf(k.reeks)}];
-    lijn(g, reeksen, {h: 180, dag: k.dag, dec: k.id === 'dollar' ? 4 : k.id === 'pollock' ? 0 : k.id.startsWith('cpi') ? 1 : undefined, label: 'Lijngrafiek: ' + k.titel});
+    lijn(g, reeksen, {h: 180, dag: k.dag, dec: k.id === 'dollar' ? 4 : k.id === 'pollock' ? 2 : k.id.startsWith('cpi') ? 1 : undefined, label: 'Lijngrafiek: ' + k.titel});
   });
   const series = data.eu.map((l, i) => ({naam: l.naam, kleur: kleuren[i % kleuren.length], reeks: vanaf(l.reeks)}));
   const leg = document.getElementById('legenda'); leg.replaceChildren();
