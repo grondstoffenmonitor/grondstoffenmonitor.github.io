@@ -519,7 +519,8 @@ def main():
         dict(id="pangasius", titel="Pangasiusfilet uit Vietnam, EU-import ($/kg)", reeks=r4(pangasius)),
         dict(id="karton", titel="Karton Nederland (index, 2021=100)", reeks=r4(nl.get("C1721", []))),
         dict(id="plastic", titel="Plastic verpakking Nederland (index, 2021=100)", reeks=r4(nl.get("C2222", []))),
-        dict(id="container", titel="Container Shanghai → Rotterdam ($ per 40ft)", dag=True, reeks=[[d, t] for d, t, _ in sha]),
+        dict(id="container", titel="Container Shanghai → Rotterdam ($ per 40ft, laatste 6 maanden)", dag=True,
+             reeks=[[d, t] for d, t, _ in sha if d >= (dt.date.today() - dt.timedelta(days=183)).isoformat()]),
     ]
     BOTER_2021, MELK_2021 = 425.08, 35.91  # ZuivelNL-jaargemiddelden 2021 (euro per 100 kg)
     eu_lijnen = [dict(naam=n, reeks=r4(eu.get(c, []))) for c, n in
