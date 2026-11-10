@@ -11,7 +11,7 @@
 :root {
   --bg: #f2f2f7; --card: #ffffff; --fg: #1d1d1f; --fg2: #6e6e73; --fg3: #aeaeb2; --sep: rgba(60,60,67,.12);
   --up: #d70015; --up-bg: rgba(255,59,48,.12); --down: #248a3d; --down-bg: rgba(52,199,89,.14); --flat-bg: rgba(120,120,128,.12);
-  --blue: #007aff; --orange: #ff9500; --green: #34c759; --purple: #af52de; --pink: #ff2d55; --teal: #30b0c7; --indigo: #5856d6; --brown: #a2845e; --yellow: #ffcc00;
+  --blue: #007aff; --orange: #ff9500; --green: #34c759; --purple: #af52de; --pink: #ff2d55; --teal: #30b0c7; --indigo: #5856d6; --brown: #a2845e; --red: #ff3b30; --yellow: #ffcc00;
   --grid: rgba(60,60,67,.08); --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
   --bar: rgba(242,242,247,.72);
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
@@ -136,6 +136,13 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
     <p class="uitleg">Gemiddelde pompprijs per liter in Nederland (CBS). Transporteurs tanken vaak goedkoper; gebruik vooral de ontwikkeling voor gesprekken over brandstoftoeslagen.</p>
   </section>
 
+  <section id="inflatie">
+    <div class="sectie-kop"><h2>Inflatie</h2><span class="hint">Nederland · prijsstijging t.o.v. een jaar eerder</span></div>
+    <div class="raster" id="inflatie-tegels"></div>
+    <div class="klein" id="inflatie-grafieken" style="margin-top:14px"></div>
+    <p class="uitleg">Consumentenprijsindex (CPI) van het CBS. Handig als referentie bij indexatieclausules en prijsgesprekken.</p>
+  </section>
+
   <details>
     <summary>Over de bronnen</summary>
     <ul>
@@ -145,6 +152,7 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
       <li>Suiker (No. 11), cacao en koffie (arabica): IMF-grondstofprijzen via FRED, omgerekend naar euro per kg.</li>
       <li>Boter: Officiële Nederlandse Zuivelnotering (ZuivelNL), verse boter, af fabriek, excl. btw.</li>
       <li>Melk: EDF-ZuivelNL Internationale Melkprijsvergelijking, gemiddelde standaardmelkprijs (4,2% vet, 3,4% eiwit), omgerekend naar liter met 1 liter = 1,03 kg.</li>
+      <li>Inflatie: CBS, consumentenprijsindex (CPI 2025=100), jaarmutatie voor alle bestedingen en voor voedingsmiddelen en alcoholvrije dranken.</li>
       <li>Diesel en benzine (Euro95): CBS, gemiddelde pompprijs in Nederland per dag (incl. btw en accijns).</li>
       <li>Containervracht: Drewry World Container Index, spotprijs Shanghai → Rotterdam per 40ft container.</li>
       <li>Elke ochtend automatisch opgehaald. Kan een bron niet worden bijgewerkt, dan blijven de vorige cijfers staan en verschijnt bovenaan een melding.</li>
@@ -173,9 +181,9 @@ const ICONEN = {
   dollar: P('<path d="M17 6.5A6.5 6.5 0 1 0 17 17.5"/><path d="M4 10.5h9M4 13.5h9"/>'),
   container: P('<path d="M3 15h18l-2.2 4.5H5.2z"/><rect x="5" y="9" width="5" height="6" rx=".5"/><rect x="10" y="9" width="5" height="6" rx=".5"/>')
 };
-const KLEUR = { eurusd: '--blue', wci: '--indigo', melk: '--teal', boter: '--yellow', diesel: '--teal', benzine: '--orange', ijs: '--pink', c105: '--blue', suiker: '--pink', c1062: '--orange', cacao: '--brown', koffie: '--brown', c1082: '--purple', karton: '--orange', plastic: '--green',
+const KLEUR = { eurusd: '--blue', wci: '--indigo', melk: '--teal', boter: '--yellow', diesel: '--teal', benzine: '--orange', cpi: '--red', cpi_voeding: '--green', ijs: '--pink', c105: '--blue', suiker: '--pink', c1062: '--orange', cacao: '--brown', koffie: '--brown', c1082: '--purple', karton: '--orange', plastic: '--green',
   dollar: '--blue', container: '--indigo' };
-ICONEN.benzine = ICONEN.diesel; ICONEN.karton_k = ICONEN.karton; ICONEN.plastic_k = ICONEN.plastic;
+ICONEN.benzine = ICONEN.diesel; ICONEN.cpi = P('<path d="M4 20L20 4"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>'); ICONEN.cpi_voeding = P('<path d="M5 10h14l-1.5 9a2 2 0 0 1-2 1.7h-7a2 2 0 0 1-2-1.7z"/><path d="M9 10l3-6 3 6"/>'); ICONEN.karton_k = ICONEN.karton; ICONEN.plastic_k = ICONEN.plastic;
 const kleuren = ['--blue', '--orange', '--green', '--purple', '--pink', '--teal', '--yellow', '--indigo'].map((v) => `var(${v})`);
 
 const loc = d3.formatLocale({decimal: ',', thousands: '.', grouping: [3], currency: ['€', '']});
@@ -191,16 +199,17 @@ function icoon(id) { const s = el('span', 'icoon'); s.style.background = `var(${
 function tegels(data) {
   const box = document.getElementById('groepen');
   [...new Set(data.tegels.map((t) => t.groep))].forEach((g) => {
-    const bodem = g === 'Brandstof';
+    const bodemId = {Brandstof: 'brandstof-tegels', Inflatie: 'inflatie-tegels'}[g];
+    const bodem = !!bodemId;
     if (!bodem) box.appendChild(el('h3', null, g));
-    const raster = bodem ? document.getElementById('brandstof-tegels') : el('div', 'raster');
+    const raster = bodem ? document.getElementById(bodemId) : el('div', 'raster');
     data.tegels.filter((t) => t.groep === g).forEach((t) => {
       const a = el('a', 'tegel'); a.href = t.bron; a.target = '_blank'; a.rel = 'noopener'; a.setAttribute('aria-label', `${t.naam}, open de bron`);
       const top = el('div', 'tegel-top'); top.append(icoon(t.id), el('span', 'naam', t.naam), el('span', 'pijl', '↗'));
       const w = el('div', 'waarde');
       if (t.waarde == null) w.textContent = '—';
       else if (t.id === 'eurusd') { w.append(el('small', null, '1 € = '), document.createTextNode(fmt(t.waarde, t.dec)), el('small', null, ' $')); }
-      else w.textContent = (t.prefix || '') + fmt(t.waarde, t.dec);
+      else w.textContent = (t.prefix || '') + fmt(t.waarde, t.dec) + (t.suffix || '');
       const voet = el('div', 'tegel-voet');
       voet.appendChild(el('span', 'eenheid', `${t.eenheid} · ${periode(t.periode)}`));
       if (t.verandering != null) {
@@ -278,12 +287,13 @@ function lijn(box, series, opt) {
 function teken(data) {
   const klein = document.getElementById('klein'); klein.replaceChildren();
   const bk = document.getElementById('brandstof-grafieken'); bk.replaceChildren();
+  const ik = document.getElementById('inflatie-grafieken'); ik.replaceChildren();
   data.klein.forEach((k) => {
-    const id = {dollar: 'dollar', boter: 'boter', suiker: 'suiker', cacao: 'cacao', koffie: 'koffie', karton: 'karton', plastic: 'plastic', ijs: 'ijs', diesel: 'diesel', benzine: 'benzine', container: 'container'}[k.id] || k.id;
+    const id = {dollar: 'dollar', boter: 'boter', suiker: 'suiker', cacao: 'cacao', koffie: 'koffie', karton: 'karton', plastic: 'plastic', ijs: 'ijs', diesel: 'diesel', benzine: 'benzine', cpi: 'cpi', cpi_voeding: 'cpi_voeding', container: 'container'}[k.id] || k.id;
     const kaart = el('div', 'mini');
     const kop = el('div', 'mini-kop'); kop.append(icoon(id), el('span', null, k.titel));
-    const g = el('div', 'grafiek'); kaart.append(kop, g); (['diesel', 'benzine'].includes(k.id) ? bk : klein).appendChild(kaart);
-    lijn(g, [{naam: k.titel.split(' (')[0].split(',')[0], kleur: `var(${KLEUR[id] || '--blue'})`, reeks: k.reeks}], {h: 180, dag: k.dag, dec: k.id === 'dollar' ? 4 : undefined, label: 'Lijngrafiek: ' + k.titel});
+    const g = el('div', 'grafiek'); kaart.append(kop, g); (['diesel', 'benzine'].includes(k.id) ? bk : ['cpi', 'cpi_voeding'].includes(k.id) ? ik : klein).appendChild(kaart);
+    lijn(g, [{naam: k.titel.split(' (')[0].split(',')[0], kleur: `var(${KLEUR[id] || '--blue'})`, reeks: k.reeks}], {h: 180, dag: k.dag, dec: k.id === 'dollar' ? 4 : k.id.startsWith('cpi') ? 1 : undefined, label: 'Lijngrafiek: ' + k.titel});
   });
   const series = data.eu.map((l, i) => ({naam: l.naam, kleur: kleuren[i % kleuren.length], reeks: l.reeks}));
   const leg = document.getElementById('legenda'); leg.replaceChildren();
