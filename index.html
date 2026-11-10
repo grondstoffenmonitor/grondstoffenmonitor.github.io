@@ -166,6 +166,7 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
       <li>Suiker (No. 11), cacao en koffie (arabica): IMF-grondstofprijzen via FRED, omgerekend naar euro per kg.</li>
       <li>Boter: Officiële Nederlandse Zuivelnotering (ZuivelNL), verse boter, af fabriek, excl. btw.</li>
       <li>Melk: EDF-ZuivelNL Internationale Melkprijsvergelijking, gemiddelde standaardmelkprijs (4,2% vet, 3,4% eiwit), omgerekend naar liter met 1 liter = 1,03 kg.</li>
+      <li>Roze zalm: Alaska Department of Revenue, Alaska Salmon Price Report (gemiddelde eerste groothandelsprijs diepvries H&amp;G, per vier maanden), omgerekend met de ECB-koers.</li>
       <li>Marktduiding: nieuwste video van het YouTube-kanaal van Tradex Foods (3-Minute Market Insight).</li>
       <li>Inflatie: CBS, consumentenprijsindex (CPI 2025=100), jaarmutatie voor alle bestedingen en voor voedingsmiddelen en alcoholvrije dranken.</li>
       <li>Diesel en benzine (Euro95): CBS, gemiddelde pompprijs in Nederland per dag (incl. btw en accijns).</li>
@@ -196,9 +197,9 @@ const ICONEN = {
   dollar: P('<path d="M17 6.5A6.5 6.5 0 1 0 17 17.5"/><path d="M4 10.5h9M4 13.5h9"/>'),
   container: P('<path d="M3 15h18l-2.2 4.5H5.2z"/><rect x="5" y="9" width="5" height="6" rx=".5"/><rect x="10" y="9" width="5" height="6" rx=".5"/>')
 };
-const KLEUR = { eurusd: '--blue', wci: '--indigo', melk: '--teal', boter: '--yellow', diesel: '--teal', benzine: '--orange', cpi: '--red', cpi_voeding: '--green', ijs: '--pink', c105: '--blue', suiker: '--pink', c1062: '--orange', cacao: '--brown', koffie: '--brown', c1082: '--purple', karton: '--orange', plastic: '--green',
+const KLEUR = { eurusd: '--blue', wci: '--indigo', melk: '--teal', boter: '--yellow', diesel: '--teal', benzine: '--orange', cpi: '--red', cpi_voeding: '--green', ijs: '--pink', c105: '--blue', suiker: '--pink', c1062: '--orange', cacao: '--brown', koffie: '--brown', c1082: '--purple', zalm: '--pink', karton: '--orange', plastic: '--green',
   dollar: '--blue', container: '--indigo' };
-ICONEN.benzine = ICONEN.diesel; ICONEN.cpi = P('<path d="M4 20L20 4"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>'); ICONEN.cpi_voeding = P('<path d="M5 10h14l-1.5 9a2 2 0 0 1-2 1.7h-7a2 2 0 0 1-2-1.7z"/><path d="M9 10l3-6 3 6"/>'); ICONEN.karton_k = ICONEN.karton; ICONEN.plastic_k = ICONEN.plastic;
+ICONEN.benzine = ICONEN.diesel; ICONEN.cpi = P('<path d="M4 20L20 4"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>'); ICONEN.cpi_voeding = P('<path d="M5 10h14l-1.5 9a2 2 0 0 1-2 1.7h-7a2 2 0 0 1-2-1.7z"/><path d="M9 10l3-6 3 6"/>'); ICONEN.karton_k = ICONEN.karton; ICONEN.zalm = P('<path d="M2.5 12c3-4.5 8-6 12.5-3.5L20 5v14l-5-3.5C10.5 18 5.5 16.5 2.5 12z"/><circle cx="7.5" cy="11" r=".8" fill="currentColor"/>'); ICONEN.plastic_k = ICONEN.plastic;
 const kleuren = ['--blue', '--orange', '--green', '--purple', '--pink', '--teal', '--yellow', '--indigo'].map((v) => `var(${v})`);
 
 const loc = d3.formatLocale({decimal: ',', thousands: '.', grouping: [3], currency: ['€', '']});
