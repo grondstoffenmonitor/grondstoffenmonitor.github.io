@@ -338,6 +338,8 @@ def main():
     zalm = safe("Alaska zalm", alaska_pink, [])
     pollock = safe("Eurostat pollock", lambda: comext("03047500", "CN"), [])
     pangasius = safe("Eurostat pangasius", lambda: comext("03046200", "VN"), [])
+    pollock_ru = safe("Eurostat pollock RU", lambda: comext("03047500", "RU"), [])
+    pollock_us = safe("Eurostat pollock US", lambda: comext("03047500", "US"), [])
     fx_lang = safe("ECB maand vanaf 2021", lambda: ecb("M.USD.EUR.SP00.A", "2021-01"), [])
     diesel = brandstof.get("diesel", [])
     benzine = brandstof.get("benzine", [])
@@ -426,7 +428,8 @@ def main():
 
     kl = dict(fx_lang)
     # Vis in dollars: EU-importprijzen (euro per kg) omrekenen met de ECB-koers van dezelfde maand.
-    pollock = [(m, v * kl[m]) for m, v in pollock if m in kl]
+    pollock, pollock_ru, pollock_us = ([(m, v * kl[m] * 1000) for m, v in r if m in kl]  # dollar per ton
+                                       for r in (pollock, pollock_ru, pollock_us))
     pangasius = [(m, v * kl[m]) for m, v in pangasius if m in kl]
     zalm_kg = []
     for r in zalm:
@@ -437,8 +440,10 @@ def main():
     m, v, c = yoy(zalm_kg)
     tile("Vis", "zalm", "Roze zalm Alaska (diepvries H&G)", "per kg, gemiddelde 4 maanden t/m", v, m, c, "op jaar",
          "https://tax.alaska.gov/programs/programs/reports/index.aspx?60624", prefix="$ ", dec=2)
-    m, v, c = yoy(pollock)
-    tile("Vis", "pollock", "Alaska pollockfilet uit China (diepvries)", "per kg, EU-importprijs", v, m, c, "op jaar", "https://ec.europa.eu/eurostat/databrowser/view/ds-045409/default/table", prefix="$ ", dec=2)
+    for sid, reeks, naam in (("pollock_ru", pollock_ru, "Pollockfilet Rusland"), ("pollock_us", pollock_us, "Pollockfilet VS"),
+                             ("pollock", pollock, "Pollockfilet China (Russische grondstof)")):
+        m, v, c = yoy(reeks)
+        tile("Vis", sid, naam, "per ton, EU-importprijs", v, m, c, "op jaar", "https://ec.europa.eu/eurostat/databrowser/view/ds-045409/default/table", prefix="$ ", dec=0)
     m, v, c = yoy(pangasius)
     tile("Vis", "pangasius", "Pangasiusfilet uit Vietnam (diepvries)", "per kg, EU-importprijs", v, m, c, "op jaar", "https://ec.europa.eu/eurostat/databrowser/view/ds-045409/default/table", prefix="$ ", dec=2)
 
@@ -459,7 +464,9 @@ def main():
         dict(id="cacao", titel="Cacao (€/kg)", reeks=r4(wm_eur["PCOCOUSDM"])),
         dict(id="koffie", titel="Koffie arabica (€/kg)", reeks=r4(wm_eur["PCOFFOTMUSDM"])),
         dict(id="zalm", titel="Roze zalm Alaska, diepvries H&G ($/kg, per 4 maanden)", reeks=r4(zalm_kg)),
-        dict(id="pollock", titel="Alaska pollockfilet uit China, EU-import ($/kg)", reeks=r4(pollock)),
+        dict(id="pollock", titel="Pollockfilet naar de EU per herkomst ($/ton)", reeks=r4(pollock),
+             lijnen=[dict(naam="Rusland", kleur="--yellow", reeks=r4(pollock_ru)), dict(naam="VS", kleur="--blue", reeks=r4(pollock_us)),
+                     dict(naam="China (Russ. grondstof)", kleur="--green", reeks=r4(pollock))]),
         dict(id="pangasius", titel="Pangasiusfilet uit Vietnam, EU-import ($/kg)", reeks=r4(pangasius)),
         dict(id="karton", titel="Karton Nederland (index, 2021=100)", reeks=r4(nl.get("C1721", []))),
         dict(id="plastic", titel="Plastic verpakking Nederland (index, 2021=100)", reeks=r4(nl.get("C2222", []))),
