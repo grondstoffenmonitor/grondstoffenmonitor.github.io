@@ -70,6 +70,11 @@ a.tegel:active { transform: scale(.97); transition-duration: .1s; }
 
 /* Grafieken */
 .kaart { background: var(--card); border-radius: 22px; padding: 22px; box-shadow: var(--shadow); }
+.video-kaart { max-width: 760px; }
+.video-kaart iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 14px; display: block; background: #000; }
+.video-kaart .vt { font-weight: 600; font-size: 17px; margin: 14px 0 2px; }
+.video-kaart .vs { color: var(--fg2); font-size: 14px; margin: 0; }
+.video-kaart .vs a { color: var(--blue, #007aff); text-decoration: none; }
 .klein { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
 .mini { background: var(--card); border-radius: 18px; padding: 16px 16px 8px; box-shadow: var(--shadow); }
 .mini-kop { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
@@ -146,6 +151,12 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
     <p class="uitleg">Consumentenprijsindex (CPI) van het CBS. Handig als referentie bij indexatieclausules en prijsgesprekken.</p>
   </section>
 
+  <section id="video">
+    <div class="sectie-kop"><h2>Laatste marktduiding</h2><span class="hint">Tradex Foods · 3-Minute Market Insight</span></div>
+    <div class="kaart video-kaart" id="video-kaart"></div>
+    <p class="uitleg">Elke week een korte video van visgroothandel Tradex Foods over prijzen en aanvoer van zalm, pollock, kabeljauw en meer. Hier staat altijd de nieuwste aflevering.</p>
+  </section>
+
   <details>
     <summary>Over de bronnen</summary>
     <ul>
@@ -155,6 +166,7 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
       <li>Suiker (No. 11), cacao en koffie (arabica): IMF-grondstofprijzen via FRED, omgerekend naar euro per kg.</li>
       <li>Boter: Officiële Nederlandse Zuivelnotering (ZuivelNL), verse boter, af fabriek, excl. btw.</li>
       <li>Melk: EDF-ZuivelNL Internationale Melkprijsvergelijking, gemiddelde standaardmelkprijs (4,2% vet, 3,4% eiwit), omgerekend naar liter met 1 liter = 1,03 kg.</li>
+      <li>Marktduiding: nieuwste video van het YouTube-kanaal van Tradex Foods (3-Minute Market Insight).</li>
       <li>Inflatie: CBS, consumentenprijsindex (CPI 2025=100), jaarmutatie voor alle bestedingen en voor voedingsmiddelen en alcoholvrije dranken.</li>
       <li>Diesel en benzine (Euro95): CBS, gemiddelde pompprijs in Nederland per dag (incl. btw en accijns).</li>
       <li>Containervracht: Drewry World Container Index, spotprijs Shanghai → Rotterdam per 40ft container.</li>
@@ -304,6 +316,22 @@ function teken(data) {
   lijn(document.getElementById('eugrafiek'), series, {h: 320, dec: 1, label: 'Lijngrafiek van prijsindexen (2021=100) per grondstof sinds januari 2024'});
 }
 
+function video(data) {
+  const v = data.video, box = document.getElementById('video-kaart');
+  if (!v || !v.id) { document.getElementById('video').hidden = true; return; }
+  const f = document.createElement('iframe');
+  f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(v.id) + '?rel=0';
+  f.title = v.titel; f.loading = 'lazy'; f.allowFullscreen = true;
+  f.allow = 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+  f.referrerPolicy = 'strict-origin-when-cross-origin';
+  const t = document.createElement('p'); t.className = 'vt'; t.textContent = v.titel;
+  const s = document.createElement('p'); s.className = 'vs';
+  const dat = v.datum ? new Date(v.datum + 'T12:00:00Z').toLocaleDateString('nl-NL', {day: 'numeric', month: 'long', year: 'numeric'}) : '';
+  const a = document.createElement('a'); a.href = 'https://www.youtube.com/watch?v=' + encodeURIComponent(v.id); a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Bekijk op YouTube';
+  s.append(dat ? dat + ' · ' : '', a);
+  box.replaceChildren(f, t, s);
+}
+
 fetch('data/data.json', {cache: 'no-cache'}).then((r) => r.json()).then((data) => {
   const d = new Date(data.bijgewerkt);
   document.getElementById('bijgewerkt').textContent = 'Bijgewerkt ' + d.toLocaleString('nl-NL', {day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Amsterdam'});
@@ -312,7 +340,7 @@ fetch('data/data.json', {cache: 'no-cache'}).then((r) => r.json()).then((data) =
     m.textContent = 'Niet alle bronnen konden vandaag worden bijgewerkt; daar staan de vorige cijfers. (' + data.fouten.join(' | ') + ')';
     m.hidden = false;
   }
-  tegels(data); teken(data);
+  tegels(data); teken(data); video(data);
   let tm; window.addEventListener('resize', () => { clearTimeout(tm); tm = setTimeout(() => teken(data), 150); });
 }).catch(() => { document.getElementById('groepen').textContent = 'De gegevens konden niet worden geladen.'; });
 </script>
