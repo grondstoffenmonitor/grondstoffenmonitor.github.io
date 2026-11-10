@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-10T08:52+00:00",
+ "bijgewerkt": "2026-11-10T09:13+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -209,6 +209,36 @@
    "prefix": "$ ",
    "suffix": "",
    "dec": 2,
+   "hoog_goed": false
+  },
+  {
+   "groep": "Vis",
+   "id": "pollock_ru",
+   "naam": "Pollockfilet Rusland",
+   "eenheid": "per ton, EU-importprijs",
+   "waarde": null,
+   "periode": null,
+   "verandering": null,
+   "label": "op jaar",
+   "bron": "https://ec.europa.eu/eurostat/databrowser/view/ds-045409/default/table",
+   "prefix": "$ ",
+   "suffix": "",
+   "dec": 0,
+   "hoog_goed": false
+  },
+  {
+   "groep": "Vis",
+   "id": "pollock_us",
+   "naam": "Pollockfilet VS",
+   "eenheid": "per ton, EU-importprijs",
+   "waarde": null,
+   "periode": null,
+   "verandering": null,
+   "label": "op jaar",
+   "bron": "https://ec.europa.eu/eurostat/databrowser/view/ds-045409/default/table",
+   "prefix": "$ ",
+   "suffix": "",
+   "dec": 0,
    "hoog_goed": false
   },
   {
@@ -3269,5 +3299,7 @@
   "titel": "3MMI - Pacific Cod, Pollock & Halibut: Winter Supply Outlook",
   "datum": "2026-11-09"
  },
- "fouten": []
+ "fouten": [
+  "ECB maand vanaf 2021: HTTP Error 504: Gateway Time-out"
+ ]
 }
