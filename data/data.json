@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-10T07:55+00:00",
+ "bijgewerkt": "2026-11-10T08:09+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -194,6 +194,21 @@
    "prefix": "",
    "suffix": "",
    "dec": 1,
+   "hoog_goed": false
+  },
+  {
+   "groep": "Vis",
+   "id": "zalm",
+   "naam": "Roze zalm Alaska (diepvries H&G)",
+   "eenheid": "per kg, gemiddelde 4 maanden t/m",
+   "waarde": null,
+   "periode": null,
+   "verandering": null,
+   "label": "op jaar",
+   "bron": "https://tax.alaska.gov/programs/programs/reports/index.aspx?60624",
+   "prefix": "€ ",
+   "suffix": "",
+   "dec": 2,
    "hoog_goed": false
   },
   {
@@ -1482,6 +1497,11 @@
      6.3214
     ]
    ]
+  },
+  {
+   "id": "zalm",
+   "titel": "Roze zalm Alaska, diepvries H&G (€/kg, per 4 maanden)",
+   "reeks": []
   },
   {
    "id": "karton",
@@ -2888,7 +2908,7 @@
  "video": {
   "id": "8q_4RW_580A",
   "titel": "3MMI - Pacific Cod, Pollock & Halibut: Winter Supply Outlook",
-  "datum": ""
+  "datum": "2026-11-09"
  },
  "fouten": []
 }
