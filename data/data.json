@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-10T07:14+00:00",
+ "bijgewerkt": "2026-11-10T07:51+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -2885,5 +2885,8 @@
    ]
   }
  ],
- "fouten": []
+ "video": null,
+ "fouten": [
+  "Tradex video: HTTP Error 500: Internal Server Error"
+ ]
 }
