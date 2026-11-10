@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-10T08:09+00:00",
+ "bijgewerkt": "2026-11-10T08:12+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -2910,5 +2910,7 @@
   "titel": "3MMI - Pacific Cod, Pollock & Halibut: Winter Supply Outlook",
   "datum": "2026-11-09"
  },
- "fouten": []
+ "fouten": [
+  "Alaska zalm: 2021-04: geen tabel (108232 tekens: '\\r\\n\\r\\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.')"
+ ]
 }
