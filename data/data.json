@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-10T08:12+00:00",
+ "bijgewerkt": "2026-11-10T08:13+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -201,9 +201,9 @@
    "id": "zalm",
    "naam": "Roze zalm Alaska (diepvries H&G)",
    "eenheid": "per kg, gemiddelde 4 maanden t/m",
-   "waarde": null,
-   "periode": null,
-   "verandering": null,
+   "waarde": 2.8059797762975345,
+   "periode": "2026-04",
+   "verandering": 11.6,
    "label": "op jaar",
    "bron": "https://tax.alaska.gov/programs/programs/reports/index.aspx?60624",
    "prefix": "€ ",
@@ -1501,7 +1501,68 @@
   {
    "id": "zalm",
    "titel": "Roze zalm Alaska, diepvries H&G (€/kg, per 4 maanden)",
-   "reeks": []
+   "reeks": [
+    [
+     "2021-04",
+     2.8023
+    ],
+    [
+     "2021-08",
+     2.7127
+    ],
+    [
+     "2021-12",
+     2.6213
+    ],
+    [
+     "2022-04",
+     2.3189
+    ],
+    [
+     "2022-08",
+     4.0846
+    ],
+    [
+     "2022-12",
+     4.1786
+    ],
+    [
+     "2023-08",
+     2.3018
+    ],
+    [
+     "2023-12",
+     2.0939
+    ],
+    [
+     "2024-04",
+     2.057
+    ],
+    [
+     "2024-08",
+     3.0459
+    ],
+    [
+     "2024-12",
+     133385326.652
+    ],
+    [
+     "2025-04",
+     2.5144
+    ],
+    [
+     "2025-08",
+     2.7927
+    ],
+    [
+     "2025-12",
+     2.9501
+    ],
+    [
+     "2026-04",
+     2.806
+    ]
+   ]
   },
   {
    "id": "karton",
@@ -2910,7 +2971,5 @@
   "titel": "3MMI - Pacific Cod, Pollock & Halibut: Winter Supply Outlook",
   "datum": "2026-11-09"
  },
- "fouten": [
-  "Alaska zalm: 2021-04: geen tabel (108232 tekens: '\\r\\n\\r\\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.')"
- ]
+ "fouten": []
 }
