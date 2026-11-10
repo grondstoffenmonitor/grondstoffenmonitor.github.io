@@ -155,7 +155,7 @@ def alaska_pink():
     velden = ["periode", "pink_usd_lb"]
     if not (DATA / "zalm.csv").exists():
         write_csv("zalm.csv", [], velden)
-    bekend = {r["periode"] for r in read_csv("zalm.csv")}
+    bekend = {r["periode"] for r in read_csv("zalm.csv") if 0.2 < float(r["pink_usd_lb"]) < 20}
     vandaag = dt.date.today()
     nieuw = []
     fout = ""
@@ -175,13 +175,26 @@ def alaska_pink():
                 k = pagina.lower().find("frozen headed")
                 fout = fout or f"{per}: geen tabel ({len(pagina)} tekens: {pagina[max(0, k - 80):k + 80]!r})"
                 continue
-            j = pagina.lower().find("avg wholesale price per pound", blok.end())
-            if j < 0:
-                continue
-            cellen = re.findall(r"<td[^>]*>\s*([^<]*?)\s*</td>", pagina[j:pagina.find("</tr>", j)])
-            # kolommen: Chinook, Sockeye, Coho, Pink, Chum
-            if len(cellen) >= 4 and cellen[3].startswith("$") and float(cellen[3].lstrip("$").replace(",", "")) > 0:
-                nieuw.append({"periode": per, "pink_usd_lb": cellen[3].lstrip("$").replace(",", "")})
+            sectie = pagina[blok.end():]
+            eind = re.search(r"<td[^>]*font-weight:\s*bold", sectie)
+            sectie = sectie[:eind.start()] if eind else sectie[:6000]
+
+            def pink(label, sectie=sectie):
+                m = re.search(label + r"\s*</td>(.*?)</tr>", sectie, re.I | re.S)
+                if not m:
+                    return None
+                cellen = re.findall(r"<td[^>]*>\s*([^<]*?)\s*</td>", m.group(1))
+                try:  # kolommen: Chinook, Sockeye, Coho, Pink, Chum
+                    return float(cellen[3].replace("$", "").replace(",", ""))
+                except (IndexError, ValueError):
+                    return None
+
+            lbs, waarde, gem = pink("Total Pounds"), pink("Total Value"), pink("Avg Wholesale Price Per Pound")
+            # Sommige rapporten hebben verschoven rijen; neem de eerste aannemelijke prijs per pound.
+            kandidaten = [gem, waarde / lbs if waarde and lbs else None, gem / waarde if gem and waarde else None]
+            prijs = next((p for p in kandidaten if p and 0.2 < p < 20), None)
+            if prijs:
+                nieuw.append({"periode": per, "pink_usd_lb": round(prijs, 4)})
     rows = upsert("zalm.csv", ["periode"], velden, nieuw)
     if not rows and fout:
         raise RuntimeError(fout)
@@ -394,6 +407,8 @@ def main():
     kl = dict(fx_lang)
     zalm_kg = []
     for r in zalm:
+        if not 0.2 < float(r["pink_usd_lb"]) < 20:
+            continue
         j, mnd = int(r["periode"][:4]), int(r["periode"][5:])
         k = [kl[f"{j}-{x:02d}"] for x in range(mnd - 3, mnd + 1) if f"{j}-{x:02d}" in kl]
         if k:  # dollar per pound -> euro per kg, met de gemiddelde koers over dezelfde vier maanden
