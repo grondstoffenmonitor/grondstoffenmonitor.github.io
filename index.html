@@ -169,7 +169,6 @@ details ul { font-size: 14px; color: var(--fg2); padding-left: 1.1em; margin: 12
     <summary>Over de bronnen</summary>
     <ul>
       <li>Wisselkoers: ECB-referentiekoers euro/dollar (maandgemiddelde en dagkoers).</li>
-      <li>Consumptie-ijs: Eurostat-producentenprijsindex voor de vervaardiging van consumptie-ijs (NACE 10.52), de verkoopprijzen van ijsproducenten af fabriek.</li>
       <li>EU- en NL-indexen: Eurostat, producentenprijzen industrie, binnenlandse markt (sts_inppd_m), niet seizoensgecorrigeerd.</li>
       <li>Suiker (No. 11), cacao en koffie (arabica): IMF-grondstofprijzen via FRED, omgerekend naar euro per kg.</li>
       <li>Boter: Officiële Nederlandse Zuivelnotering (ZuivelNL), verse boter, af fabriek, excl. btw.</li>
@@ -236,6 +235,8 @@ function tegels(data) {
       if (t.waarde == null) w.textContent = '—';
       else if (t.id === 'eurusd') { w.append(el('small', null, '1 € = '), document.createTextNode(fmt(t.waarde, t.dec)), el('small', null, ' $')); }
       else w.textContent = (t.prefix || '') + fmt(t.waarde, t.dec) + (t.suffix || '');
+      const usd = data.tegels.find((x) => x.id === 'eurusd');
+      if (t.id === 'container' && t.waarde != null && usd && usd.waarde) w.append(el('small', null, ` · € ${fmt(t.waarde / usd.waarde, 0)}`));
       const voet = el('div', 'tegel-voet');
       voet.appendChild(el('span', 'eenheid', `${t.eenheid} · ${periode(t.periode)}`));
       if (t.verandering != null) {
@@ -343,7 +344,7 @@ function teken(data) {
       : [{naam: k.titel.split(' (')[0].split(',')[0], kleur: `var(${KLEUR[id] || '--blue'})`, reeks: k.dag ? k.reeks : vanaf(k.reeks)}];
     lijn(g, reeksen, {h: 180, dag: k.dag, mnd: k.mnd, dec: k.id === 'dollar' ? 4 : k.id === 'pollock' ? 2 : k.id.startsWith('cpi') ? 1 : undefined, label: 'Lijngrafiek: ' + k.titel});
   });
-  const series = data.eu.map((l, i) => ({naam: l.naam, kleur: kleuren[i % kleuren.length], reeks: vanaf(l.reeks)}));
+  const series = data.eu.filter((l) => l.naam !== 'Consumptie-ijs').map((l, i) => ({naam: l.naam, kleur: kleuren[i % kleuren.length], reeks: vanaf(l.reeks)}));
   const leg = document.getElementById('legenda'); leg.replaceChildren();
   series.forEach((s) => { const li = el('li'); const sw = el('span', 'sw'); sw.style.background = s.kleur; li.append(sw, s.naam); leg.appendChild(li); });
   lijn(document.getElementById('eugrafiek'), series, {h: 320, dec: 1, label: 'Lijngrafiek van prijsindexen (2021=100) per grondstof sinds januari 2025'});
