@@ -265,9 +265,19 @@ function lijn(box, series, opt) {
   x.range([m.l, w - m.r]); y.range([h - m.b, m.t]);
   svg.append('g').attr('class', 'grid').attr('transform', `translate(${m.l},0)`)
     .call(d3.axisLeft(y).ticks(nt).tickSize(-(w - m.l - m.r)).tickFormat(fmtTick)).call((g) => g.selectAll('.tick text').attr('x', -8));
-  svg.append('g').attr('class', 'as').attr('transform', `translate(0,${h - m.b + 4})`)
-    .call(d3.axisBottom(x).ticks(Math.max(2, Math.min(6, Math.floor((w - m.l) / 80)))).tickSize(0)
-      .tickFormat((d) => opt.mnd ? MND[d.getUTCMonth()] : opt.dag ? `${d.getUTCDate()} ${MND[d.getUTCMonth()]}` : `${MND[d.getUTCMonth()]} '${String(d.getUTCFullYear()).slice(2)}`));
+  const [v0, v1] = x.domain();
+  const nm = (v1.getUTCFullYear() - v0.getUTCFullYear()) * 12 + v1.getUTCMonth() - v0.getUTCMonth();
+  const xas = d3.axisBottom(x).tickSize(0);
+  if (!opt.mnd && nm >= 3) {
+    const ruimte = Math.max(2, Math.floor((w - m.l - m.r) / 44));
+    const stap = [1, 2, 3, 4, 6, 12].find((s) => nm / s <= ruimte) || 12;
+    xas.tickValues(d3.utcMonth.range(d3.utcMonth.ceil(v0), d3.utcDay.offset(v1, 1)).filter((d) => d.getUTCMonth() % stap === 0))
+      .tickFormat((d) => d.getUTCMonth() === 0 ? `jan '${String(d.getUTCFullYear()).slice(2)}` : MND[d.getUTCMonth()]);
+  } else {
+    xas.ticks(Math.max(2, Math.min(6, Math.floor((w - m.l) / 80))))
+      .tickFormat((d) => opt.mnd ? MND[d.getUTCMonth()] : opt.dag ? `${d.getUTCDate()} ${MND[d.getUTCMonth()]}` : `${MND[d.getUTCMonth()]} '${String(d.getUTCFullYear()).slice(2)}`);
+  }
+  svg.append('g').attr('class', 'as').attr('transform', `translate(0,${h - m.b + 4})`).call(xas);
   const line = d3.line().x((d) => x(parse(d[0]))).y((d) => y(d[1]));
   if (series.length === 1) {
     const id = 'g' + Math.random().toString(36).slice(2);
