@@ -1,14 +1,14 @@
 {
- "bijgewerkt": "2026-11-12T13:49+00:00",
+ "bijgewerkt": "2026-11-12T21:51+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
    "id": "eurusd",
    "naam": "Euro in dollar",
    "eenheid": "ECB-dagkoers",
-   "waarde": 1.1127,
-   "periode": "2026-11-11",
-   "verandering": -3.9,
+   "waarde": 1.1081,
+   "periode": "2026-11-12",
+   "verandering": -4.3,
    "label": "op jaar",
    "bron": "https://data.ecb.europa.eu/data/datasets/EXR/EXR.D.USD.EUR.SP00.A",
    "prefix": "1 euro = ",
@@ -21,9 +21,9 @@
    "id": "wci",
    "naam": "Container Shanghai → Rotterdam",
    "eenheid": "per 40ft container",
-   "waarde": 3615.0,
-   "periode": "2026-11-05",
-   "verandering": -2.0,
+   "waarde": 3504.0,
+   "periode": "2026-11-12",
+   "verandering": -3.0,
    "label": "op week",
    "bron": "https://www.drewry.co.uk/supply-chain-advisors/supply-chain-expertise/world-container-index-assessed-by-drewry",
    "prefix": "$ ",
@@ -487,6 +487,10 @@
     [
      "2026-11-11",
      1.1127
+    ],
+    [
+     "2026-11-12",
+     1.1081
     ]
    ]
   },
@@ -3126,6 +3130,10 @@
     [
      "2026-11-05",
      3615.0
+    ],
+    [
+     "2026-11-12",
+     3504.0
     ]
    ]
   }
