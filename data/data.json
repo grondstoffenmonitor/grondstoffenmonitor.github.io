@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-11T21:59+00:00",
+ "bijgewerkt": "2026-11-12T13:49+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -35,10 +35,10 @@
    "groep": "Brandstof",
    "id": "diesel",
    "naam": "Diesel (pompprijs NL)",
-   "eenheid": "per liter incl. btw (excl. btw € 2,04)",
-   "waarde": 2.468,
-   "periode": "2026-11-02",
-   "verandering": 42.8,
+   "eenheid": "per liter incl. btw (excl. btw € 1,95)",
+   "waarde": 2.361,
+   "periode": "2026-11-09",
+   "verandering": 33.9,
    "label": "op jaar",
    "bron": "https://www.cbs.nl/nl-nl/cijfers/detail/80416ned",
    "prefix": "€ ",
@@ -50,10 +50,10 @@
    "groep": "Brandstof",
    "id": "benzine",
    "naam": "Benzine Euro95 (pompprijs NL)",
-   "eenheid": "per liter incl. btw (excl. btw € 1,89)",
-   "waarde": 2.284,
-   "periode": "2026-11-02",
-   "verandering": 17.6,
+   "eenheid": "per liter incl. btw (excl. btw € 1,81)",
+   "waarde": 2.196,
+   "periode": "2026-11-09",
+   "verandering": 13.0,
    "label": "op jaar",
    "bron": "https://www.cbs.nl/nl-nl/cijfers/detail/80416ned",
    "prefix": "€ ",
@@ -632,7 +632,7 @@
     ],
     [
      "2026-11",
-     2.464
+     2.4053
     ]
    ]
   },
@@ -778,7 +778,7 @@
     ],
     [
      "2026-11",
-     2.2815
+     2.2317
     ]
    ]
   },
