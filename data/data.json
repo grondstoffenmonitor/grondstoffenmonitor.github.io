@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-15T12:49+00:00",
+ "bijgewerkt": "2026-11-15T20:24+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -4277,10 +4277,5 @@
   "titel": "3MMI - Pacific Cod, Pollock & Halibut: Winter Supply Outlook",
   "datum": "2026-11-09"
  },
- "fouten": [
-  "ECB maand: HTTP Error 503: Service Temporarily Unavailable",
-  "ECB dag: HTTP Error 503: Service Temporarily Unavailable",
-  "ECB dag (jaar): HTTP Error 503: Service Temporarily Unavailable",
-  "ECB maand vanaf 2021: HTTP Error 503: Service Temporarily Unavailable"
- ]
+ "fouten": []
 }
