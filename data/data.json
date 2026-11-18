@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-17T22:54+00:00",
+ "bijgewerkt": "2026-11-18T14:07+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -141,9 +141,9 @@
    "id": "boter",
    "naam": "Boter (ZuivelNL-notering)",
    "eenheid": "per kg",
-   "waarde": 3.75,
-   "periode": "2026-11-11",
-   "verandering": -26.5,
+   "waarde": 3.7,
+   "periode": "2026-11-18",
+   "verandering": -23.4,
    "label": "op jaar",
    "bron": "https://www.zuivelnl.org/marktinformatie/zuivelnoteringen",
    "prefix": "€ ",
@@ -1334,7 +1334,7 @@
     ],
     [
      "2026-11",
-     3.75
+     3.7333
     ]
    ]
   },
@@ -4138,7 +4138,7 @@
     ],
     [
      "2026-11",
-     88.2
+     87.8
     ]
    ]
   },
