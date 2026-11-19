@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-18T22:37+00:00",
+ "bijgewerkt": "2026-11-19T14:29+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -21,9 +21,9 @@
    "id": "wci",
    "naam": "Container Shanghai → Rotterdam",
    "eenheid": "per 40ft container",
-   "waarde": 3504.0,
-   "periode": "2026-11-12",
-   "verandering": -3.0,
+   "waarde": 3496.0,
+   "periode": "2026-11-19",
+   "verandering": 0.0,
    "label": "op week",
    "bron": "https://www.drewry.co.uk/supply-chain-advisors/supply-chain-expertise/world-container-index-assessed-by-drewry",
    "prefix": "$ ",
@@ -35,10 +35,10 @@
    "groep": "Brandstof",
    "id": "diesel",
    "naam": "Diesel (pompprijs NL)",
-   "eenheid": "per liter incl. btw (excl. btw € 1,95)",
-   "waarde": 2.361,
-   "periode": "2026-11-09",
-   "verandering": 33.9,
+   "eenheid": "per liter incl. btw (excl. btw € 1,90)",
+   "waarde": 2.294,
+   "periode": "2026-11-16",
+   "verandering": 29.5,
    "label": "op jaar",
    "bron": "https://www.cbs.nl/nl-nl/cijfers/detail/80416ned",
    "prefix": "€ ",
@@ -50,10 +50,10 @@
    "groep": "Brandstof",
    "id": "benzine",
    "naam": "Benzine Euro95 (pompprijs NL)",
-   "eenheid": "per liter incl. btw (excl. btw € 1,81)",
-   "waarde": 2.196,
-   "periode": "2026-11-09",
-   "verandering": 13.0,
+   "eenheid": "per liter incl. btw (excl. btw € 1,78)",
+   "waarde": 2.151,
+   "periode": "2026-11-16",
+   "verandering": 9.2,
    "label": "op jaar",
    "bron": "https://www.cbs.nl/nl-nl/cijfers/detail/80416ned",
    "prefix": "€ ",
@@ -652,7 +652,7 @@
     ],
     [
      "2026-11",
-     2.4053
+     2.3574
     ]
    ]
   },
@@ -798,7 +798,7 @@
     ],
     [
      "2026-11",
-     2.2317
+     2.1983
     ]
    ]
   },
@@ -3174,6 +3174,10 @@
     [
      "2026-11-12",
      3504.0
+    ],
+    [
+     "2026-11-19",
+     3496.0
     ]
    ]
   }
