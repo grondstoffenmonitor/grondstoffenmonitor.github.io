@@ -1,14 +1,14 @@
 {
- "bijgewerkt": "2026-11-20T14:05+00:00",
+ "bijgewerkt": "2026-11-20T22:15+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
    "id": "eurusd",
    "naam": "Euro in dollar",
    "eenheid": "ECB-dagkoers",
-   "waarde": 1.0992,
-   "periode": "2026-11-19",
-   "verandering": -5.1,
+   "waarde": 1.099,
+   "periode": "2026-11-20",
+   "verandering": -4.6,
    "label": "op jaar",
    "bron": "https://data.ecb.europa.eu/data/datasets/EXR/EXR.D.USD.EUR.SP00.A",
    "prefix": "1 euro = ",
@@ -511,6 +511,10 @@
     [
      "2026-11-19",
      1.0992
+    ],
+    [
+     "2026-11-20",
+     1.099
     ]
    ]
   },
