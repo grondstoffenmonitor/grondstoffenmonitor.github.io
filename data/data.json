@@ -1,5 +1,5 @@
 {
- "bijgewerkt": "2026-11-20T22:15+00:00",
+ "bijgewerkt": "2026-11-21T13:30+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
@@ -3079,10 +3079,6 @@
    "titel": "Container Shanghai → Rotterdam ($ per 40ft, laatste 6 maanden)",
    "dag": true,
    "reeks": [
-    [
-     "2026-05-21",
-     2773.0
-    ],
     [
      "2026-05-28",
      2861.0
