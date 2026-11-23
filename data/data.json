@@ -1,14 +1,14 @@
 {
- "bijgewerkt": "2026-11-22T21:05+00:00",
+ "bijgewerkt": "2026-11-23T16:05+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
    "id": "eurusd",
    "naam": "Euro in dollar",
    "eenheid": "ECB-dagkoers",
-   "waarde": 1.099,
-   "periode": "2026-11-20",
-   "verandering": -4.6,
+   "waarde": 1.0939,
+   "periode": "2026-11-23",
+   "verandering": -5.0,
    "label": "op jaar",
    "bron": "https://data.ecb.europa.eu/data/datasets/EXR/EXR.D.USD.EUR.SP00.A",
    "prefix": "1 euro = ",
@@ -515,6 +515,10 @@
     [
      "2026-11-20",
      1.099
+    ],
+    [
+     "2026-11-23",
+     1.0939
     ]
    ]
   },
@@ -4293,9 +4297,9 @@
   }
  ],
  "video": {
-  "id": "NPk8X28x7vs",
-  "titel": "3MMI - China Seafood Market Update | Whitefish, Salmon & Shrimp Winter Outlook",
-  "datum": "2026-11-16"
+  "id": "bR9edCQdgaU",
+  "titel": "3MMI - Tuna Market Update | Weaker Demand Meets Higher Costs",
+  "datum": "2026-11-23"
  },
  "fouten": []
 }
