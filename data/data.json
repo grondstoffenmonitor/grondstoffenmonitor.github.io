@@ -1,13 +1,13 @@
 {
- "bijgewerkt": "2026-11-24T02:14+00:00",
+ "bijgewerkt": "2026-11-24T15:56+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
    "id": "eurusd",
    "naam": "Euro in dollar",
    "eenheid": "ECB-dagkoers",
-   "waarde": 1.0939,
-   "periode": "2026-11-23",
+   "waarde": 1.0963,
+   "periode": "2026-11-24",
    "verandering": -5.0,
    "label": "op jaar",
    "bron": "https://data.ecb.europa.eu/data/datasets/EXR/EXR.D.USD.EUR.SP00.A",
@@ -519,6 +519,10 @@
     [
      "2026-11-23",
      1.0939
+    ],
+    [
+     "2026-11-24",
+     1.0963
     ]
    ]
   },
