@@ -1,14 +1,14 @@
 {
- "bijgewerkt": "2026-11-24T23:55+00:00",
+ "bijgewerkt": "2026-11-25T15:41+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
    "id": "eurusd",
    "naam": "Euro in dollar",
    "eenheid": "ECB-dagkoers",
-   "waarde": 1.0963,
-   "periode": "2026-11-24",
-   "verandering": -5.0,
+   "waarde": 1.0935,
+   "periode": "2026-11-25",
+   "verandering": -5.3,
    "label": "op jaar",
    "bron": "https://data.ecb.europa.eu/data/datasets/EXR/EXR.D.USD.EUR.SP00.A",
    "prefix": "1 euro = ",
@@ -141,9 +141,9 @@
    "id": "boter",
    "naam": "Boter (ZuivelNL-notering)",
    "eenheid": "per kg",
-   "waarde": 3.7,
-   "periode": "2026-11-18",
-   "verandering": -23.4,
+   "waarde": 3.72,
+   "periode": "2026-11-25",
+   "verandering": -18.1,
    "label": "op jaar",
    "bron": "https://www.zuivelnl.org/marktinformatie/zuivelnoteringen",
    "prefix": "€ ",
@@ -523,6 +523,10 @@
     [
      "2026-11-24",
      1.0963
+    ],
+    [
+     "2026-11-25",
+     1.0935
     ]
    ]
   },
@@ -1354,7 +1358,7 @@
     ],
     [
      "2026-11",
-     3.7333
+     3.73
     ]
    ]
   },
@@ -4158,7 +4162,7 @@
     ],
     [
      "2026-11",
-     87.8
+     87.7
     ]
    ]
   },
