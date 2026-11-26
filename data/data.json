@@ -1,14 +1,14 @@
 {
- "bijgewerkt": "2026-11-25T23:39+00:00",
+ "bijgewerkt": "2026-11-26T15:23+00:00",
  "tegels": [
   {
    "groep": "Valuta & vracht",
    "id": "eurusd",
    "naam": "Euro in dollar",
    "eenheid": "ECB-dagkoers",
-   "waarde": 1.0935,
-   "periode": "2026-11-25",
-   "verandering": -5.3,
+   "waarde": 1.0975,
+   "periode": "2026-11-26",
+   "verandering": -5.2,
    "label": "op jaar",
    "bron": "https://data.ecb.europa.eu/data/datasets/EXR/EXR.D.USD.EUR.SP00.A",
    "prefix": "1 euro = ",
@@ -21,8 +21,8 @@
    "id": "wci",
    "naam": "Container Shanghai → Rotterdam",
    "eenheid": "per 40ft container",
-   "waarde": 3496.0,
-   "periode": "2026-11-19",
+   "waarde": 3485.0,
+   "periode": "2026-11-26",
    "verandering": 0.0,
    "label": "op week",
    "bron": "https://www.drewry.co.uk/supply-chain-advisors/supply-chain-expertise/world-container-index-assessed-by-drewry",
@@ -35,10 +35,10 @@
    "groep": "Brandstof",
    "id": "diesel",
    "naam": "Diesel (pompprijs NL)",
-   "eenheid": "per liter incl. btw (excl. btw € 1,90)",
-   "waarde": 2.294,
-   "periode": "2026-11-16",
-   "verandering": 29.5,
+   "eenheid": "per liter incl. btw (excl. btw € 1,83)",
+   "waarde": 2.22,
+   "periode": "2026-11-23",
+   "verandering": 23.4,
    "label": "op jaar",
    "bron": "https://www.cbs.nl/nl-nl/cijfers/detail/80416ned",
    "prefix": "€ ",
@@ -50,10 +50,10 @@
    "groep": "Brandstof",
    "id": "benzine",
    "naam": "Benzine Euro95 (pompprijs NL)",
-   "eenheid": "per liter incl. btw (excl. btw € 1,78)",
-   "waarde": 2.151,
-   "periode": "2026-11-16",
-   "verandering": 9.2,
+   "eenheid": "per liter incl. btw (excl. btw € 1,74)",
+   "waarde": 2.104,
+   "periode": "2026-11-23",
+   "verandering": 7.0,
    "label": "op jaar",
    "bron": "https://www.cbs.nl/nl-nl/cijfers/detail/80416ned",
    "prefix": "€ ",
@@ -527,6 +527,10 @@
     [
      "2026-11-25",
      1.0935
+    ],
+    [
+     "2026-11-26",
+     1.0975
     ]
    ]
   },
@@ -672,7 +676,7 @@
     ],
     [
      "2026-11",
-     2.3574
+     2.324
     ]
    ]
   },
@@ -818,7 +822,7 @@
     ],
     [
      "2026-11",
-     2.1983
+     2.1753
     ]
    ]
   },
@@ -3194,6 +3198,10 @@
     [
      "2026-11-19",
      3496.0
+    ],
+    [
+     "2026-11-26",
+     3485.0
     ]
    ]
   }
